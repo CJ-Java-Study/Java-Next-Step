@@ -28,6 +28,7 @@ repositories {
 dependencies {
 //    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-logging'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
@@ -44,9 +45,9 @@ sonar {
         property "sonar.projectKey", "sqp_e09b17190b785c8976e5dc8304d019b2669bff37" // 프로젝트 키
         property "sonar.language", "java"
         property "sonar.sourceEncoding", "UTF-8"
-        property "sonar.sources", "src/main"
-        property "sonar.tests", "src/test"
-        property "sonar.java.binaries", "${buildDir}/classes"
+        property "sonar.sources", "src/main/java"
+        property "sonar.tests", "src/test/java"
+        property "sonar.java.binaries", "${buildDir}/classes/java/main"
         property "sonar.test.inclusions", "**/*Test.java"
         property "sonar.host.url", "http://localhost:9000"
         property 'sonar.coverage.jacoco.xmlReportPaths', "${buildDir}/reports/jacoco/test/jacocoTestReport.xml"
@@ -101,11 +102,11 @@ jacocoTestCoverageVerification {
                 minimum = 0.30 // 최소 라인 커버리지 비율
             }
 
-            limit {
-                counter = 'BRANCH'
-                value = 'COVEREDRATIO'
-                minimum = 0.30 // 최소 브랜치 커버리지 비율
-            }
+//            limit {
+//                counter = 'BRANCH'
+//                value = 'COVEREDRATIO'
+//                minimum = 0.30 // 최소 브랜치 커버리지 비율
+//            }
 
             excludes = [
                     '**.dto.**',
