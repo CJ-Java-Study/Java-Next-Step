@@ -3,38 +3,65 @@ package com.nextstep.web.common.util;
 import java.util.regex.Pattern;
 
 public class StringCalculator {
+    private static final String DEFAULT_DELIMITER_PATTERN = ",|:";
 
     int add(String text) {
-        int sum = 0;
-        if(text == null || text.isEmpty()) return sum;
-        // 커스텀 구분자인지 확인
-        boolean customDelimiter = text.matches("^//.\\n.*");
-
-        String numbersPart = text;       // 숫자부분
-        String delimiterPattern = ",|:";  // 구분자
-
-        if (customDelimiter) {
-            char sep = text.charAt(2);
-            numbersPart = text.substring(4);
-            delimiterPattern = String.valueOf(sep);
+        if (text == null || text.isEmpty()) {
+            return 0;
         }
 
-        // 숫자 부분이 비어 있으면 바로 0 반환
+        boolean custom = hasCustomDelimiter(text);
+        String delimiterPattern = custom ? getCustomDelimiterPattern(text) : DEFAULT_DELIMITER_PATTERN;
+        String numbersPart = custom ? getNumbersPart(text) : text;
+
         if (numbersPart.isEmpty()) {
-            return sum;
+            return 0;
         }
 
-        String[] tokens = numbersPart.split(delimiterPattern);
-        for (String token : tokens) {
-            int num = Integer.parseInt(token);
+        String[] tokens = splitNumbers(numbersPart, delimiterPattern);
+        int[] values = parseTokens(tokens);
+        validateNoNegatives(values, text);
 
+        return sum(values);
+    }
+
+    private boolean hasCustomDelimiter(String text) {
+        return text.matches("^//.\\n.*");
+    }
+
+    private String getCustomDelimiterPattern(String text) {
+        return String.valueOf(text.charAt(2));
+    }
+
+    private String getNumbersPart(String text) {
+        return text.substring(4);
+    }
+
+    private String[] splitNumbers(String numbersPart, String delimiterPattern) {
+        return numbersPart.split(delimiterPattern);
+    }
+
+    private int[] parseTokens(String[] tokens) {
+        int[] nums = new int[tokens.length];
+        for (int i = 0; i < tokens.length; i++) {
+            nums[i] = Integer.parseInt(tokens[i]);
+        }
+        return nums;
+    }
+
+    private void validateNoNegatives(int[] numbers, String originalText) {
+        for (int num : numbers) {
             if (num < 0) {
-                throw new RuntimeException("음수 입력 불가: " + text);
+                throw new RuntimeException("음수 입력 불가: " + originalText);
             }
-
-            sum += num;
         }
+    }
 
-        return sum;
+    private int sum(int[] numbers) {
+        int total = 0;
+        for (int num : numbers) {
+            total += num;
+        }
+        return total;
     }
 }
