@@ -58,6 +58,11 @@ class StringCalculatorTest {
     }
 
     @Test
+    public void add_custom_구분자가_마이너스인데_음수전달() {
+        assertThrows(RuntimeException.class, () -> cal.add("//-\n-1-2-3"));
+    }
+
+    @Test
     public void add_custom_구분자_빈문자인경우() {
         assertEquals(0, cal.add("//#\n"));
     }
