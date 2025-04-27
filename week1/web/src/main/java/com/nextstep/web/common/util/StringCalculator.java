@@ -1,6 +1,5 @@
 package com.nextstep.web.common.util;
 
-import java.util.Arrays;
 import java.util.regex.Pattern;
 
 public class StringCalculator {
@@ -9,21 +8,15 @@ public class StringCalculator {
         int sum = 0;
         if(text == null || text.isEmpty()) return sum;
         // 커스텀 구분자인지 확인
-        boolean customDelimiter =
-                text.startsWith("//")
-                        && text.length() > 3
-                        && text.charAt(3) == '\n';
+        boolean customDelimiter = text.matches("^//.\\n.*");
 
-        String numbersPart;       // 숫자부분
-        String delimiterPattern;  // 구분자
+        String numbersPart = text;       // 숫자부분
+        String delimiterPattern = ",|:";  // 구분자
 
         if (customDelimiter) {
             char sep = text.charAt(2);
             numbersPart = text.substring(4);
             delimiterPattern = String.valueOf(sep);
-        } else {
-            numbersPart = text;
-            delimiterPattern = ",|:";
         }
 
         // 숫자 부분이 비어 있으면 바로 0 반환
