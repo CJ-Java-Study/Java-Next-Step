@@ -12,7 +12,19 @@ import util.HttpRequestUtils.Pair;
 class HttpRequestUtilsTest {
 
     @Test
-    public void parseQueryString() {
+    @DisplayName("성공_요청 URL 추출")
+    void testGetRequestUrl() {
+        String requestLine = "GET /index.html HTTP/1.1";
+        String url = HttpRequestUtils.getRequestUrl(requestLine);
+        assertEquals("/index.html", url);
+
+        assertNull(HttpRequestUtils.getRequestUrl(null));
+        assertNull(HttpRequestUtils.getRequestUrl(""));
+        assertNull(HttpRequestUtils.getRequestUrl("GET"))  ;
+    }
+
+    @Test
+    void parseQueryString() {
         String queryString = "userId=javajigi";
         Map<String, String> parameters = HttpRequestUtils.parseQueryString(queryString);
         assertEquals("javajigi", parameters.get("userId"));
