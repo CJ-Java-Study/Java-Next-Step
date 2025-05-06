@@ -8,6 +8,24 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 
 public class HttpRequestUtils {
+
+    public static String getRequestUrl(String requestLine) {
+        if (requestLine == null || requestLine.isEmpty()) {
+            return null;
+        }
+        String[] tokens = requestLine.split(" ");
+
+        /**
+         * 일반적인 HTTP 요청은 GET /index.html HTTP/1.1 형식
+         * split하면 GET, /index.html, HTTP/1.1로 나뉘어짐
+         * 따라서 최소한 2개 이상의 토큰이 있어야 url 분리 가능
+         */
+        if (tokens.length < 2) {
+            return null;
+        }
+        return tokens[1];
+    }
+
     /**
      * @param queryString은
      *            URL에서 ? 이후에 전달되는 field1=value1&field2=value2 형식임

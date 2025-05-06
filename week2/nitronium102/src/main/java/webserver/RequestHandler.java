@@ -5,6 +5,7 @@ import java.net.Socket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.HttpRequestUtils;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
@@ -27,14 +28,11 @@ public class RequestHandler extends Thread {
             if (line == null) {
                 return;
             }
-            // HTTP 요청 정보의 첫 번쨰 line에서 요청 정보 추출
-            String[] tokens = line.split(" ");
+            log.debug(line);
 
-            while(!"".equals(line)) {
-                line = bufferedReader.readLine();
-                log.debug(line);
-            }
-
+            String url = HttpRequestUtils.getRequestUrl(line);
+            log.debug("url : {}", url);
+            
             DataOutputStream dos = new DataOutputStream(out);
             byte[] body = "Hello World".getBytes();
             response200Header(dos, body.length);
