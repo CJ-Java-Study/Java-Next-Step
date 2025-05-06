@@ -10,6 +10,7 @@ import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.HttpRequestUtils;
+import util.IOUtils;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
@@ -33,17 +34,21 @@ public class RequestHandler extends Thread {
             if (line == null) {
                 return;
             }
-            log.debug(line);
-
             // HTTP 요청 URL 파싱
             String url = HttpRequestUtils.getRequestUrl(line);
             log.debug("url : {}", url);
 
-            // http://localhost:8080/user/create?userId=javajigi&password=password&name=nitronium&email=nitronium@cj.net
+            int contentLength = 0;
+            while(!line.isEmpty()) {
+                line = bufferedReader.readLine();
+                if (line.contains("Content-Length")) {
+                    contentLength = Integer.parseInt(line.split(":")[1].trim());
+                }
+            }
+
             if (url.startsWith("/user/create")) {
-                int index = url.indexOf("?");
-                String queryString = url.substring(index + 1); // /user/create
-                Map<String, String> params = HttpRequestUtils.parseQueryString(queryString); // userId=nitronium&password=cjjd
+                String body = IOUtils.readData(bufferedReader, contentLength);
+                Map<String, String> params = HttpRequestUtils.parseQueryString(body); // userId=nitronium&password=cjjd
                 User user = new User(params.get("userId"), params.get("password"), params.get("name"), params.get("email"));
                 log.debug("user : {}", user);
             } else {
