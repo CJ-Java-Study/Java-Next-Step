@@ -51,6 +51,10 @@ public class RequestHandler extends Thread {
                 Map<String, String> params = HttpRequestUtils.parseQueryString(body); // userId=nitronium&password=cjjd
                 User user = new User(params.get("userId"), params.get("password"), params.get("name"), params.get("email"));
                 log.debug("user : {}", user);
+
+                // 302 리다이렉트 응답
+                DataOutputStream dos = new DataOutputStream(out);
+                response302Header(dos, "/index.html");
             } else {
                 DataOutputStream dos = new DataOutputStream(out);
                 byte[] body = readWebappFile(url);
@@ -80,6 +84,16 @@ public class RequestHandler extends Thread {
     private void sendResponse(DataOutputStream dos, byte[] body) {
         response200Header(dos, body.length);
         responseBody(dos, body);
+    }
+
+    private void response302Header(DataOutputStream dos, String redirectUrl) {
+        try {
+            dos.writeBytes("HTTP/1.1 302 Found\r\n");
+            dos.writeBytes("Location: " + redirectUrl + "\r\n");
+            dos.writeBytes("\r\n");
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
     }
 
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
