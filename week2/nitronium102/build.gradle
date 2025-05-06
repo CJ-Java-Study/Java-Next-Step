@@ -17,7 +17,10 @@ repositories {
 dependencies {
     api libs.com.google.guava.guava
     api libs.ch.qos.logback.logback.classic
-    testImplementation libs.junit.junit
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+}
+test {
+    useJUnitPlatform()
 }
 
 group = 'org.nhnnext'
