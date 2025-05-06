@@ -4,7 +4,9 @@ import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.Map;
 
+import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.HttpRequestUtils;
@@ -24,7 +26,7 @@ public class RequestHandler extends Thread {
                 connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            // 1단계: HTTP 요청 정보 파싱
+            // HTTP 요청 정보 파싱
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
 
             String line = bufferedReader.readLine();
@@ -33,15 +35,22 @@ public class RequestHandler extends Thread {
             }
             log.debug(line);
 
-            // 2단계: HTTP 요청 URL 파싱
+            // HTTP 요청 URL 파싱
             String url = HttpRequestUtils.getRequestUrl(line);
             log.debug("url : {}", url);
 
-            // 3단계: 요청 URL에 해당하는 파일 찾기
-            DataOutputStream dos = new DataOutputStream(out);
-            byte[] body = readWebappFile(url);
-
-            sendResponse(dos, body);
+            // http://localhost:8080/user/create?userId=javajigi&password=password&name=nitronium&email=nitronium@cj.net
+            if (url.startsWith("/user/create")) {
+                int index = url.indexOf("?");
+                String queryString = url.substring(index + 1); // /user/create
+                Map<String, String> params = HttpRequestUtils.parseQueryString(queryString); // userId=nitronium&password=cjjd
+                User user = new User(params.get("userId"), params.get("password"), params.get("name"), params.get("email"));
+                log.debug("user : {}", user);
+            } else {
+                DataOutputStream dos = new DataOutputStream(out);
+                byte[] body = readWebappFile(url);
+                sendResponse(dos, body);
+            }
         } catch (IOException e) {
             log.error(e.getMessage());
         }
