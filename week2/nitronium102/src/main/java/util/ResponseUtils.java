@@ -22,6 +22,19 @@ public class ResponseUtils {
         }
     }
 
+    public void send200CssResponse(DataOutputStream dos, byte[] body) {
+        try {
+            dos.writeBytes("HTTP/1.1 200 OK\r\n");
+            dos.writeBytes("Content-Type: text/css;charset=utf-8\r\n");
+            dos.writeBytes("Content-Length: " + body.length + "\r\n");
+            dos.writeBytes("\r\n");
+            dos.write(body, 0, body.length);
+            dos.flush();
+        } catch (IOException e) {
+            log.error("send200CssResponse error: ", e);
+        }
+    }
+
     public void send302Redirect(DataOutputStream dos, String redirectUrl) {
         try {
             dos.writeBytes("HTTP/1.1 302 Found\r\n");

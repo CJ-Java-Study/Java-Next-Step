@@ -54,6 +54,8 @@ public class RequestHandler extends Thread {
             }
 
             DataOutputStream dos = new DataOutputStream(out);
+            checkIsCss(dos, url);
+
             switch (url) {
                 case "/user/create":
                     userRequestHandler.handleUserCreate(bufferedReader, contentLength, dos);
@@ -77,6 +79,13 @@ public class RequestHandler extends Thread {
         } catch (
                 IOException e) {
             log.error(e.getMessage());
+        }
+    }
+
+    private void checkIsCss(DataOutputStream dos, String url) {
+        if (url.endsWith(".css")) {
+            byte[] body = readWebappFile(url);
+            responseUtils.send200CssResponse(dos, body);
         }
     }
 
