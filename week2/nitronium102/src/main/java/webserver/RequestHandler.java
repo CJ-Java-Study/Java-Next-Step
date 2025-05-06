@@ -39,8 +39,15 @@ public class RequestHandler extends Thread {
             log.debug("url : {}", url);
 
             int contentLength = 0;
-            while(!line.isEmpty()) {
+            boolean isLogin = false;
+            while (!line.isEmpty()) {
                 line = bufferedReader.readLine();
+                if (line.contains("Cookie")) {
+                    String cookie = line.split(":")[1].trim();
+                    if (cookie.contains("logined=true")) {
+                        isLogin = true;
+                    }
+                }
                 if (line.contains("Content-Length")) {
                     contentLength = Integer.parseInt(line.split(":")[1].trim());
                 }
