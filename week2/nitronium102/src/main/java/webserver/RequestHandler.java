@@ -23,16 +23,15 @@ public class RequestHandler extends Thread {
             // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
 
-            String line;
-            while(true) {
+            String line = bufferedReader.readLine();
+            if (line == null) {
+                return;
+            }
+            // HTTP 요청 정보의 첫 번쨰 line에서 요청 정보 추출
+            String[] tokens = line.split(" ");
+
+            while(!"".equals(line)) {
                 line = bufferedReader.readLine();
-                if (line == null) {
-                    return;
-                }
-                // 헤더 끝
-                if ("".equals(line)) {
-                    break;
-                }
                 log.debug(line);
             }
 
