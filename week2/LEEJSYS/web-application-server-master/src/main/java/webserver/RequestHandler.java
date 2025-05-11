@@ -3,12 +3,15 @@ package webserver;
 import java.io.*;
 import java.net.Socket;
 import java.nio.file.Files;
+import java.util.HashMap;
 import java.util.Map;
 
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.HttpRequestUtils;
+import util.HttpRequestUtils.Pair;
+import util.IOUtils;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
@@ -27,11 +30,17 @@ public class RequestHandler extends Thread {
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream(); BufferedReader br = new BufferedReader(new InputStreamReader(in))) {
             String line;
             String requestLine = null;
+            Map<String, String> headers = new HashMap<>();
 
             while ((line = br.readLine()) != null && !line.equals("")) {
                 log.debug("HTTP 요청 헤더: {}", line);
                 if (requestLine == null) {
                     requestLine = line;
+                } else{
+                    Pair header = HttpRequestUtils.parseHeader(line);
+                    if (header != null) {
+                        headers.put(header.getKey(), header.getValue());
+                    }
                 }
             }
 
@@ -47,6 +56,8 @@ public class RequestHandler extends Thread {
 
             if (url.startsWith("/user/create") && method.equals("GET")) {
                 handleUserCreate(url, dos);
+            }if (url.equals("/user/create") && method.equals("POST")) {
+                handleUserCreatePost(br, headers.get("Content-Length"), dos);
             } else {
                 serveIndexFile(url, dos);
             }
@@ -77,6 +88,25 @@ public class RequestHandler extends Thread {
 
         byte[] body = "회원가입 완료".getBytes();
         response200(dos, body);
+    }
+
+    private void handleUserCreatePost(BufferedReader br, String contentLengthHeader, DataOutputStream dos) throws IOException {
+        int contentLength = Integer.parseInt(contentLengthHeader);
+        String body = IOUtils.readData(br, contentLength);
+
+        Map<String, String> params = HttpRequestUtils.parseQueryString(body);
+
+        User user = new User(
+                params.get("userId"),
+                params.get("password"),
+                params.get("name"),
+                params.get("email")
+        );
+
+        log.debug("POST 회원가입 요청 처리: {}", user);
+
+        byte[] responseBody = "회원가입 완료 (POST)".getBytes();
+        response200(dos, responseBody);
     }
 
     private void serveIndexFile(String url, DataOutputStream dos) throws IOException {
