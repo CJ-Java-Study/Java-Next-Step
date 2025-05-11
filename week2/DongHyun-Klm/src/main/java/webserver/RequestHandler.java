@@ -32,7 +32,7 @@ public class RequestHandler extends Thread {
             String queryString = HttpRequestUtils.getQueryString(url);
             log.info("요청 path: {}, queryString: {}", path, queryString);
 
-            // 회원가입 GET 요청 처리 로직 Strat
+            // 회원가입 요청 처리 로직 Strat
             if(url.startsWith("/user/create")) {
                 int contentLength = HttpRequestUtils.parseContentLength(br);
                 String requestBody = IOUtils.readData(br, contentLength);
@@ -49,9 +49,7 @@ public class RequestHandler extends Thread {
                 DataBase.addUser(user);
 
                 DataOutputStream dos = new DataOutputStream(out);
-                byte[] body = Files.readAllBytes(new File("./webapp/user/create.html").toPath());
-                response200Header(dos, body.length);
-                responseBody(dos, body);
+                response302Header(dos, "/index.html");
                 return;
             }
 
@@ -59,6 +57,17 @@ public class RequestHandler extends Thread {
             byte[] body = Files.readAllBytes(new File("./webapp" + path).toPath());
             response200Header(dos, body.length);
             responseBody(dos, body);
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    private void response302Header(DataOutputStream dos, String redirectUrl) {
+        try {
+            dos.writeBytes("HTTP/1.1 302 Found\r\n");
+            dos.writeBytes("Location: " + redirectUrl + "\r\n");
+            dos.writeBytes("\r\n");
+            dos.flush();
         } catch (IOException e) {
             log.error(e.getMessage());
         }
