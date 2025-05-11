@@ -39,13 +39,13 @@ public class RequestHandler extends Thread {
             DataOutputStream dos = new DataOutputStream(out);
 
             // 회원가입 요청 처리
-            if("POST".equals(method) && url.startsWith("/user/create")) {
+            if("POST".equals(method) && "/user/create".equals(path)) {
                 handleUserCreate(br, dos, contentLength);
                 return;
             }
 
             // 로그인 요청 처리 로직
-            if("POST".equals(method) && url.startsWith("/user/login")) {
+            if("POST".equals(method) && "/user/login".equals(path)) {
                 handleLogin(br, dos, contentLength);
                 return;
             }
