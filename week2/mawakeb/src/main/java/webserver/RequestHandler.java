@@ -5,6 +5,7 @@ import java.net.Socket;
 import java.nio.file.Files;
 import java.util.Map;
 
+import db.DataBase;
 import model.HttpRequest;
 import model.User;
 import org.slf4j.Logger;
@@ -31,7 +32,12 @@ public class RequestHandler extends Thread {
             String path = httpRequest.getPath();
 
             if(httpRequest.isPost() && path.equals("/user/create")){
-                handleCreateUser(httpRequest, dos);
+                UserRequestHandler.handleCreateUser(httpRequest, dos);
+                return;
+            }
+
+            if(httpRequest.isPost() && path.equals("/user/login")){
+                UserRequestHandler.handleLoginUser(httpRequest, dos);
                 return;
             }
 
@@ -49,26 +55,20 @@ public class RequestHandler extends Thread {
         return new HttpRequest(br);
     }
 
-    // POST user/create 처리
-    private void handleCreateUser(HttpRequest httpRequest, DataOutputStream dos) throws IOException {
-        Map<String, String> paramMap = HttpRequestUtils.parseQueryString(httpRequest.getBody());
-        User user = new User(paramMap);
-        log.debug("USER CREATED: " + user);
-
-        HttpResponseBuilder.response302Header(dos, "/index.html");
-    }
-
+    // html 혹은 css 파일
     private void handleGetFile(HttpRequest httpRequest, DataOutputStream dos) throws IOException {
         if(httpRequest.isGet()) {
-            File file = new File("./week2/mawakeb/webapp" + httpRequest.getPath());
+            String path = httpRequest.getPath();
+            File file = new File("./week2/mawakeb/webapp" + path);
 
-            if(!file. exists()){
+            if(!file.exists()){
                 HttpResponseBuilder.response404Header(dos, 0);
+                log.error(path + " does not exist.");
             }
 
             byte[] body = Files.readAllBytes(file.toPath());
             boolean isCss = httpRequest.getPath().endsWith(".css");
-            HttpResponseBuilder.response200Header(dos, body.length, isCss);
+            HttpResponseBuilder.response200Header(dos, body.length, isCss, "");
             HttpResponseBuilder.responseBody(dos, body);
         }
     }
