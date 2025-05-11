@@ -36,57 +36,84 @@ public class RequestHandler extends Thread {
             int contentLength = HttpRequestUtils.parseContentLength(br);
             log.info("요청 method: {}, path: {}, queryString: {}", method, path, queryString);
 
-            // 회원가입 요청 처리 로직 Strat
-            if("POST".equals(method) && url.startsWith("/user/create")) {
-                String requestBody = IOUtils.readData(br, contentLength);
-                Map<String, String> params = HttpRequestUtils.parseQueryString(requestBody);
-
-                String userId = params.get("userId");
-                String password = params.get("password");
-                String name = params.get("name");
-                String email = params.get("email");
-
-                log.info("회원가입 요청 - userId: {}, password : {}, name: {}, email: {}", userId, password, name, email);
-
-                User user = new User(userId, password, name, email);
-                DataBase.addUser(user);
-
-                DataOutputStream dos = new DataOutputStream(out);
-                response302Header(dos, "/index.html");
-                return;
-            }
-
-            // 로그인 요청 처리 로직 Strat
-            if("POST".equals(method) && url.startsWith("/user/login")) {
-                String requestBody = IOUtils.readData(br, contentLength);
-                Map<String, String> params = HttpRequestUtils.parseQueryString(requestBody);
-
-                String userId   = params.get("userId");
-                String password = params.get("password");
-                log.info("로그인 요청 - userId: {}, password: {}", userId, password);
-
-                User user = DataBase.findUserById(userId);
-                log.info("조회 사용자 - {}", user);
-                DataOutputStream dos = new DataOutputStream(out);
-                if(user != null && user.getPassword().equals(password)) { // 로그인 성공
-                    byte[] body = Files.readAllBytes(new File("./webapp/index.html").toPath());
-                    response200HeaderWithCookie(dos, body.length);
-                    responseBody(dos, body);
-                } else { // 로그인 실패
-                    byte[] body = Files.readAllBytes(new File("./webapp/user/login_failed.html").toPath());
-                    response401HeaderWithCookie(dos, body.length);
-                    responseBody(dos, body);
-                }
-                return;
-            }
-
             DataOutputStream dos = new DataOutputStream(out);
-            byte[] body = Files.readAllBytes(new File("./webapp" + path).toPath());
-            response200Header(dos, body.length);
-            responseBody(dos, body);
+
+            // 회원가입 요청 처리
+            if("POST".equals(method) && url.startsWith("/user/create")) {
+                handleUserCreate(br, dos, contentLength);
+                return;
+            }
+
+            // 로그인 요청 처리 로직
+            if("POST".equals(method) && url.startsWith("/user/login")) {
+                handleLogin(br, dos, contentLength);
+                return;
+            }
+
+            // 정적 리소스 조회
+            staticFile(dos, path);
         } catch (IOException e) {
             log.error(e.getMessage());
         }
+    }
+
+    private void staticFile(DataOutputStream dos, String path) throws IOException {
+        File file = new File("./webapp" + path);
+        if(!file.exists()) {
+            response404Header(dos);
+            return;
+        }
+        byte[] body = Files.readAllBytes(file.toPath());
+        response200Header(dos, body.length);
+        responseBody(dos, body);
+    }
+
+    private void response404Header(DataOutputStream dos) throws IOException {
+        byte[] notFound = "<h1>404 Not Found</h1>".getBytes();
+        dos.writeBytes("HTTP/1.1 404 Not Found\r\n");
+        dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+        dos.writeBytes("Content-Length: " + notFound.length + "\r\n");
+        dos.writeBytes("\r\n");
+        dos.write(notFound);
+        dos.flush();
+    }
+
+    private void handleLogin(BufferedReader br, DataOutputStream dos, int contentLength) throws IOException {
+        String requestBody = IOUtils.readData(br, contentLength);
+        Map<String, String> params = HttpRequestUtils.parseQueryString(requestBody);
+
+        String userId   = params.get("userId");
+        String password = params.get("password");
+        log.info("로그인 요청 - userId: {}, password: {}", userId, password);
+
+        User user = DataBase.findUserById(userId);
+        log.info("요청 사용자 - {}", user);
+        if(user != null && user.getPassword().equals(password)) { // 로그인 성공
+            byte[] body = Files.readAllBytes(new File("./webapp/index.html").toPath());
+            response200HeaderWithCookie(dos, body.length);
+            responseBody(dos, body);
+        } else { // 로그인 실패
+            byte[] body = Files.readAllBytes(new File("./webapp/user/login_failed.html").toPath());
+            response401HeaderWithCookie(dos, body.length);
+            responseBody(dos, body);
+        }
+    }
+
+    private void handleUserCreate(BufferedReader br, DataOutputStream dos, int contentLength) throws IOException {
+        String requestBody = IOUtils.readData(br, contentLength);
+        Map<String, String> params = HttpRequestUtils.parseQueryString(requestBody);
+
+        String userId = params.get("userId");
+        String password = params.get("password");
+        String name = params.get("name");
+        String email = params.get("email");
+
+        log.info("회원가입 요청 - userId: {}, password : {}, name: {}, email: {}", userId, password, name, email);
+
+        User user = new User(userId, password, name, email);
+        DataBase.addUser(user);
+
+        response302Header(dos, "/index.html");
     }
 
     private void response401HeaderWithCookie(DataOutputStream dos, int lengthOfBodyContent) {
