@@ -3,16 +3,14 @@ package webserver;
 import java.io.*;
 import java.net.Socket;
 import java.nio.file.Files;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
-import model.HttpHeader;
+import model.HttpRequest;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.HttpRequestUtils;
-import util.IOUtils;
+import util.HttpResponseBuilder;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
@@ -29,77 +27,52 @@ public class RequestHandler extends Thread {
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             DataOutputStream dos = new DataOutputStream(out);
-            HttpHeader header = getHeader(in);
-            String path = header.getPath();
-            byte[] body;
+            HttpRequest httpRequest = getHttpRequest(in);
+            String path = httpRequest.getPath();
 
-            if(header.isGet() && path.endsWith(".html")){
-                body = Files.readAllBytes(new File("./week2/mawakeb/webapp" + path).toPath());
-                response200Header(dos, body.length, false);
-                responseBody(dos, body);
+            if(httpRequest.isPost() && path.equals("/user/create")){
+                handleCreateUser(httpRequest, dos);
+                return;
             }
 
-            if(header.isGet() && path.endsWith(".css")){
-                body = Files.readAllBytes(new File("./week2/mawakeb/webapp" + path).toPath());
-                response200Header(dos, body.length, true);
-                responseBody(dos, body);
-            }
-
-            if(header.isPost() && path.equals("/user/create")){
-                response302Header(dos, "/index.html");
-            }
+            // 모두 아닌 경우 파일로 처리
+            handleGetFile(httpRequest, dos);
 
         } catch (IOException e) {
             log.error(e.getMessage());
         }
     }
 
-    private HttpHeader getHeader(InputStream in) throws IOException {
+    private HttpRequest getHttpRequest(InputStream in) throws IOException {
         InputStreamReader sr = new InputStreamReader(in);
         BufferedReader br = new BufferedReader(sr);
-        return new HttpHeader(br);
+        return new HttpRequest(br);
     }
 
     // POST user/create 처리
-    private void createUser(BufferedReader br, int contentLength) throws IOException {
-        String params = IOUtils.readData(br, contentLength);
-        Map<String, String> paramMap = HttpRequestUtils.parseQueryString(params);
+    private void handleCreateUser(HttpRequest httpRequest, DataOutputStream dos) throws IOException {
+        Map<String, String> paramMap = HttpRequestUtils.parseQueryString(httpRequest.getBody());
         User user = new User(paramMap);
         log.debug("USER CREATED: " + user);
+
+        HttpResponseBuilder.response302Header(dos, "/index.html");
     }
 
-    private void response200Header(DataOutputStream dos, int lengthOfBodyContent, boolean isCss) {
-        try {
-            dos.writeBytes("HTTP/1.1 200 OK \r\n");
-            if (isCss){
-                dos.writeBytes("Content-Type: text/css,*/*;q=0.1\r\n");
-            } else {
-                dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+    private void handleGetFile(HttpRequest httpRequest, DataOutputStream dos) throws IOException {
+        if(httpRequest.isGet()) {
+            File file = new File("./week2/mawakeb/webapp" + httpRequest.getPath());
+
+            if(!file. exists()){
+                HttpResponseBuilder.response404Header(dos, 0);
             }
-            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
-            dos.writeBytes("\r\n");
-        } catch (IOException e) {
-            log.error(e.getMessage());
+
+            byte[] body = Files.readAllBytes(file.toPath());
+            boolean isCss = httpRequest.getPath().endsWith(".css");
+            HttpResponseBuilder.response200Header(dos, body.length, isCss);
+            HttpResponseBuilder.responseBody(dos, body);
         }
     }
 
-    private void response302Header(DataOutputStream dos, String url) {
-        try {
-            dos.writeBytes("HTTP/1.1 302 Found \r\n");
-            dos.writeBytes("Location: " + url + "\r\n");
-            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
-            dos.writeBytes("\r\n");
-        } catch (IOException e) {
-            log.error(e.getMessage());
-        }
-    }
 
-    private void responseBody(DataOutputStream dos, byte[] body) {
-        try {
-            dos.write(body, 0, body.length);
-            dos.flush();
-        } catch (IOException e) {
-            log.error(e.getMessage());
-        }
-    }
+
 }
