@@ -10,6 +10,7 @@ import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.HttpRequestUtils;
+import util.IOUtils;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
@@ -29,11 +30,13 @@ public class RequestHandler extends Thread {
             String url = HttpRequestUtils.parseRequestUrl(br);
             String path = HttpRequestUtils.getPath(url);
             String queryString = HttpRequestUtils.getQueryString(url);
-            log.info("요청 path: {}, query: {}", path, queryString);
+            log.info("요청 path: {}, queryString: {}", path, queryString);
 
             // 회원가입 GET 요청 처리 로직 Strat
             if(url.startsWith("/user/create")) {
-                Map<String, String> params = HttpRequestUtils.parseQueryString(queryString);
+                int contentLength = HttpRequestUtils.parseContentLength(br);
+                String requestBody = IOUtils.readData(br, contentLength);
+                Map<String, String> params = HttpRequestUtils.parseQueryString(requestBody);
 
                 String userId = params.get("userId");
                 String password = params.get("password");
