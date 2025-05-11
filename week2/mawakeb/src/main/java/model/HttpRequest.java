@@ -1,16 +1,23 @@
 package model;
 
+import util.HttpRequestUtils;
+import util.IOUtils;
+
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.Map;
 
-public class HttpHeader {
+public class HttpRequest {
 
     private String method;
     private String path;
-    private String queryParams;
+    private Map<String,String> queryParams;
+
     private int contentLength;
 
-    public HttpHeader(BufferedReader br) throws IOException {
+    private String body;
+
+    public HttpRequest(BufferedReader br) throws IOException {
         String line = br.readLine();
 
         String[] tokens = line.split(" ");
@@ -22,7 +29,8 @@ public class HttpHeader {
 
         int queryIndex = path.indexOf("?");
         if(queryIndex > 0) {
-            queryParams = path.substring(queryIndex+1);
+            String queryString = path.substring(queryIndex+1);
+            queryParams = HttpRequestUtils.parseQueryString(queryString);
             path = path.substring(0, queryIndex);
         }
 
@@ -33,6 +41,7 @@ public class HttpHeader {
             }
         }
 
+        body = IOUtils.readData(br, contentLength);
     }
 
     public boolean isGet(){
@@ -51,11 +60,15 @@ public class HttpHeader {
         return path;
     }
 
-    public String getQueryParams() {
+    public Map<String, String> getQueryParams() {
         return queryParams;
     }
 
     public int getContentLength() {
         return contentLength;
+    }
+
+    public String getBody() {
+        return body;
     }
 }
