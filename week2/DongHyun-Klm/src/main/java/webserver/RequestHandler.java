@@ -71,7 +71,7 @@ public class RequestHandler extends Thread {
             }
 
             // 정적 리소스 조회
-            staticFile(dos, path);
+            staticFile(dos, path, headers);
         } catch (IOException e) {
             log.error(e.getMessage());
         }
@@ -79,7 +79,7 @@ public class RequestHandler extends Thread {
 
     private void handleLoginList(DataOutputStream dos, Map<String, String> headers) {
         String cookie = headers.get("Cookie");
-        boolean loginYn = cookie.contains("logined=true");
+        boolean loginYn = cookie != null && cookie.contains("logined=true");
         if(!loginYn) {
             response302Header(dos, "/user/login.html");
             return;
@@ -106,14 +106,16 @@ public class RequestHandler extends Thread {
         responseBody(dos, body);
     }
 
-    private void staticFile(DataOutputStream dos, String path) throws IOException {
+    private void staticFile(DataOutputStream dos, String path, Map<String, String> headers) throws IOException {
         File file = new File("./webapp" + path);
         if(!file.exists()) {
             response404Header(dos);
             return;
         }
         byte[] body = Files.readAllBytes(file.toPath());
-        response200Header(dos, body.length);
+        // MIME 타입 결정
+        String contentType = Files.probeContentType(file.toPath());
+        response200Header(dos, body.length, contentType);
         responseBody(dos, body);
     }
 
@@ -183,6 +185,17 @@ public class RequestHandler extends Thread {
             dos.writeBytes("Location: " + redirectUrl + "\r\n");
             dos.writeBytes("\r\n");
             dos.flush();
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    private void response200Header(DataOutputStream dos, int lengthOfBodyContent, String contentType) {
+        try {
+            dos.writeBytes("HTTP/1.1 200 OK \r\n");
+            dos.writeBytes("Content-Type: "+ contentType +";charset=utf-8\r\n");
+            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+            dos.writeBytes("\r\n");
         } catch (IOException e) {
             log.error(e.getMessage());
         }
