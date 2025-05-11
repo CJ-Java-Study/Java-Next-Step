@@ -2,7 +2,10 @@ package webserver;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 import db.DataBase;
@@ -27,13 +30,25 @@ public class RequestHandler extends Thread {
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            // 첫 줄 파싱
             String firstLine = br.readLine();
             String[] tokens = firstLine.split(" ");
             String method = tokens[0];
             String url    = tokens[1];
             String path = HttpRequestUtils.getPath(url);
             String queryString = HttpRequestUtils.getQueryString(url);
-            int contentLength = HttpRequestUtils.parseContentLength(br);
+
+            // 나머지 헤더 저장
+            Map<String, String> headers = new HashMap<>();
+            String line;
+            while (!(line = br.readLine()).isEmpty()) {
+                String[] keyValue = line.split(":", 2);
+                headers.put(keyValue[0].trim(), keyValue[1].trim());
+            }
+
+            int contentLength = headers.containsKey("Content-Length")
+                    ? Integer.parseInt(headers.get("Content-Length"))
+                    : 0;
             log.info("요청 method: {}, path: {}, queryString: {}", method, path, queryString);
 
             DataOutputStream dos = new DataOutputStream(out);
@@ -50,11 +65,45 @@ public class RequestHandler extends Thread {
                 return;
             }
 
+            // 사용자 목록 출력 요청 처리 로직
+            if ("GET".equals(method) && "/user/list".equals(path)) {
+                handleLoginList(dos, headers);
+            }
+
             // 정적 리소스 조회
             staticFile(dos, path);
         } catch (IOException e) {
             log.error(e.getMessage());
         }
+    }
+
+    private void handleLoginList(DataOutputStream dos, Map<String, String> headers) {
+        String cookie = headers.get("Cookie");
+        boolean loginYn = cookie.contains("logined=true");
+        if(!loginYn) {
+            response302Header(dos, "/user/login.html");
+            return;
+        }
+        UserListOut(dos);
+    }
+
+    private void UserListOut(DataOutputStream dos) {
+        Collection<User> users = DataBase.findAll();
+        StringBuilder sb = new StringBuilder();
+        sb.append("<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>회원목록</title></head><body>");
+        sb.append("<h1>회원 목록</h1><table border=\"1\">");
+        sb.append("<tr><th>ID</th><th>이름</th><th>이메일</th></tr>");
+        for (User u : users) {
+            sb.append("<tr>")
+                    .append("<td>").append(u.getUserId()).append("</td>")
+                    .append("<td>").append(u.getName()).append("</td>")
+                    .append("<td>").append(u.getEmail()).append("</td>")
+                    .append("</tr>");
+        }
+        sb.append("</table></body></html>");
+        byte[] body = sb.toString().getBytes(StandardCharsets.UTF_8);
+        response200Header(dos, body.length);
+        responseBody(dos, body);
     }
 
     private void staticFile(DataOutputStream dos, String path) throws IOException {

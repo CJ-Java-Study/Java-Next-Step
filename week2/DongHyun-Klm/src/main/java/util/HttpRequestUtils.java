@@ -14,23 +14,6 @@ import com.google.common.collect.Maps;
 public class HttpRequestUtils {
 
     /**
-     *  @param HTTP 요청 정보
-     *
-     *  @return Content-Length
-     */
-    public static int parseContentLength(BufferedReader br) throws IOException {
-        String line;
-        int contentLength = 0;
-        while ((line = br.readLine()) != null && !line.isEmpty()) {
-            System.out.println(line);
-            if (line.startsWith("Content-Length:")) {
-                contentLength = Integer.parseInt(line.split(":")[1].trim());
-            }
-        }
-        return contentLength;
-    }
-
-    /**
      *
      * @param url
      *
