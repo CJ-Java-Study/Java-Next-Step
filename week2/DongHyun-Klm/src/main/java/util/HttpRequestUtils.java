@@ -2,6 +2,8 @@ package util;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -22,6 +24,7 @@ public class HttpRequestUtils {
         String line;
 
         while ((line = br.readLine()) != null && !line.isEmpty()) {
+            System.out.println(line);
             if (firstLine) {
                 String[] tokens = line.split(" ");
                 if (tokens.length >= 2) {
@@ -32,6 +35,31 @@ public class HttpRequestUtils {
         }
         return url;
     }
+
+    /**
+     *
+     * @param url
+     *
+     * @return path
+     */
+    public static String getPath(String url) {
+        if (url == null) return "";
+        int idx = url.indexOf("?");
+        return (idx != -1) ? url.substring(0, idx) : url;
+    }
+
+    /**
+     *
+     * @param url
+     *
+     * @return QueryString
+     */
+    public static String getQueryString(String url) {
+        if (url == null) return "";
+        int idx = url.indexOf("?");
+        return (idx != -1) ? url.substring(idx + 1) : "";
+    }
+
 
     /**
      * @param queryString은
@@ -71,7 +99,9 @@ public class HttpRequestUtils {
             return null;
         }
 
-        return new Pair(tokens[0], tokens[1]);
+        String key = URLDecoder.decode(tokens[0].trim(), StandardCharsets.UTF_8);
+        String value = URLDecoder.decode(tokens[1].trim(), StandardCharsets.UTF_8);
+        return new Pair(key, value);
     }
 
     public static Pair parseHeader(String header) {
