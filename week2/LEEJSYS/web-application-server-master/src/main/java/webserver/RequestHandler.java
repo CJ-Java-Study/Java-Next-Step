@@ -68,7 +68,7 @@ public class RequestHandler extends Thread {
                     response400(dos, "Missing Content-Length header");
                 }
             }else if (url.equals("/user/list") && method.equals("GET")) {
-                handleUserList(dos);
+                handleUserList(dos, url);
             }else {
                 serveIndexFile(url, dos);
             }
@@ -98,7 +98,7 @@ public class RequestHandler extends Thread {
         log.debug("회원가입 요청 처리: {}", user);
 
         byte[] body = "회원가입 완료".getBytes();
-        response200(dos, body);
+        response200(dos, body, url);
     }
 
     private void handleUserCreatePost(BufferedReader br, String contentLengthHeader, DataOutputStream dos) throws IOException {
@@ -129,7 +129,7 @@ public class RequestHandler extends Thread {
 
         if (file.exists()) {
             byte[] body = Files.readAllBytes(file.toPath());
-            response200(dos, body);
+            response200(dos, body, url);
         } else {
             response404(dos, "<h1>404 Not Found</h1>");
         }
@@ -155,7 +155,7 @@ public class RequestHandler extends Thread {
         }
     }
 
-    private void handleUserList(DataOutputStream dos) throws IOException {
+    private void handleUserList(DataOutputStream dos, String url) throws IOException {
         Collection<User> users = DataBase.findAll();
 
         StringBuilder sb = new StringBuilder();
@@ -173,13 +173,17 @@ public class RequestHandler extends Thread {
         sb.append("</body></html>");
 
         byte[] body = sb.toString().getBytes();
-        response200(dos, body);
+        response200(dos, body, url);
     }
 
-    private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
+    private void response200Header(DataOutputStream dos, int lengthOfBodyContent, String url) {
         try {
+            String contentType = "text/html;charset=utf-8";
+            if (url.endsWith(".css")) {
+                contentType = "text/css;charset=utf-8";
+            }
             dos.writeBytes("HTTP/1.1 200 OK \r\n");
-            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+            dos.writeBytes("Content-Type: "+ contentType +"\r\n");
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
             dos.writeBytes("\r\n");
         } catch (IOException e) {
@@ -221,8 +225,8 @@ public class RequestHandler extends Thread {
         }
     }
 
-    private void response200(DataOutputStream dos, byte[] body) throws IOException {
-        response200Header(dos, body.length);
+    private void response200(DataOutputStream dos, byte[] body, String url) throws IOException {
+        response200Header(dos, body.length, url);
         responseBody(dos, body);
     }
 
