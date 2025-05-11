@@ -1,10 +1,9 @@
 package webserver;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,14 +22,39 @@ public class RequestHandler extends Thread {
                 connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
             DataOutputStream dos = new DataOutputStream(out);
-            byte[] body = "Hello World".getBytes();
+            byte[] body = parseRequest(in); // parse request body
             response200Header(dos, body.length);
             responseBody(dos, body);
         } catch (IOException e) {
             log.error(e.getMessage());
         }
+    }
+
+    private byte[] parseRequest(InputStream in){
+
+        byte[] body = "404 Error".getBytes();
+
+        try {
+            InputStreamReader sr = new InputStreamReader(in);
+            BufferedReader br = new BufferedReader(sr);
+            String line;
+
+            while ((line = br.readLine()) != null && !"".equals(line)) {
+                String[] tokens = line.split(" ");
+
+                if(tokens.length >= 2 && tokens[0].equals("GET")){
+                    String url = tokens[1];
+                    body = Files.readAllBytes(new File("./week2/mawakeb/webapp" + url).toPath());
+                }
+            }
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            body = e.getMessage().getBytes();
+        }
+
+        return body;
     }
 
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {

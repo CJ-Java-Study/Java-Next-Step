@@ -15,7 +15,8 @@
 * 각 요구사항을 구현하는 것이 중요한 것이 아니라 구현 과정을 통해 학습한 내용을 인식하는 것이 배움에 중요하다. 
 
 ### 요구사항 1 - http://localhost:8080/index.html로 접속시 응답
-* 
+![img.png](img.png)
+* `socket.getInputStream()`을 하면 끝이 없어서 `!"".equals(line)` 조건이 중요!
 
 ### 요구사항 2 - get 방식으로 회원가입
 * 
