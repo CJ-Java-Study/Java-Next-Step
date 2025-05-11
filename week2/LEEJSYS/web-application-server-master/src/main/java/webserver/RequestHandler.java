@@ -68,7 +68,7 @@ public class RequestHandler extends Thread {
                     response400(dos, "Missing Content-Length header");
                 }
             }else if (url.equals("/user/list") && method.equals("GET")) {
-                handleUserList(dos, url);
+                handleUserList(dos, headers, url);
             }else {
                 serveIndexFile(url, dos);
             }
@@ -96,6 +96,8 @@ public class RequestHandler extends Thread {
         );
         DataBase.addUser(user);
         log.debug("회원가입 요청 처리: {}", user);
+        log.debug("DB 저장 직후 size: {}", DataBase.findAll().size());
+        log.debug("DB 직접 조회 확인: {}", DataBase.findUserById(user.getUserId()));
 
         byte[] body = "회원가입 완료".getBytes();
         response200(dos, body, url);
@@ -155,7 +157,16 @@ public class RequestHandler extends Thread {
         }
     }
 
-    private void handleUserList(DataOutputStream dos, String url) throws IOException {
+    private void handleUserList(DataOutputStream dos, Map<String, String> headers, String url) throws IOException {
+        String cookieHeader = headers.get("Cookie");
+        Map<String, String> cookies = HttpRequestUtils.parseCookies(cookieHeader);
+        boolean isLogined = Boolean.parseBoolean(cookies.get("logined"));
+
+        if (!isLogined) {
+            response302(dos, "/user/login.html", null);
+            return;
+        }
+
         Collection<User> users = DataBase.findAll();
 
         StringBuilder sb = new StringBuilder();
