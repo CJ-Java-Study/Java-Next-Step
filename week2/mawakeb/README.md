@@ -16,7 +16,7 @@
 
 ### 요구사항 1 - http://localhost:8080/index.html로 접속시 응답
 ![img.png](img.png)
-* `socket.getInputStream()`을 하면 끝이 없어서 `!"".equals(line)` 조건이 중요!
+* `socket.getInputStream()`을 하면 끝이 없어서 `!line.isEmpty()` 조건이 중요!
 
 ### 요구사항 2 - get 방식으로 회원가입
 * 
