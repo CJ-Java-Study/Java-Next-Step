@@ -28,7 +28,7 @@ public class RequestHandler extends Thread {
             String line;
             String requestLine = null;
 
-            while (!(line = br.readLine()).equals("")) {
+            while ((line = br.readLine()) != null && !line.equals("")) {
                 log.debug("HTTP 요청 헤더: {}", line);
                 if (requestLine == null) {
                     requestLine = line;
