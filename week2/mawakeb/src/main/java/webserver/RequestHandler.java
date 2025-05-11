@@ -35,14 +35,20 @@ public class RequestHandler extends Thread {
 
             if(header.isGet() && path.endsWith(".html")){
                 body = Files.readAllBytes(new File("./week2/mawakeb/webapp" + path).toPath());
-                response200Header(dos, body.length);
+                response200Header(dos, body.length, false);
+                responseBody(dos, body);
+            }
+
+            if(header.isGet() && path.endsWith(".css")){
+                body = Files.readAllBytes(new File("./week2/mawakeb/webapp" + path).toPath());
+                response200Header(dos, body.length, true);
                 responseBody(dos, body);
             }
 
             if(header.isPost() && path.equals("/user/create")){
                 response302Header(dos, "/index.html");
             }
-            
+
         } catch (IOException e) {
             log.error(e.getMessage());
         }
@@ -62,10 +68,14 @@ public class RequestHandler extends Thread {
         log.debug("USER CREATED: " + user);
     }
 
-    private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
+    private void response200Header(DataOutputStream dos, int lengthOfBodyContent, boolean isCss) {
         try {
             dos.writeBytes("HTTP/1.1 200 OK \r\n");
-            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+            if (isCss){
+                dos.writeBytes("Content-Type: text/css,*/*;q=0.1\r\n");
+            } else {
+                dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+            }
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
             dos.writeBytes("\r\n");
         } catch (IOException e) {
