@@ -14,6 +14,7 @@ public class HttpRequest {
     private Map<String,String> queryParams;
 
     private int contentLength;
+    private Map<String,String> cookies;
 
     private String body;
 
@@ -38,6 +39,10 @@ public class HttpRequest {
             tokens = line.split(" ");
             if(tokens[0].equals("Content-Length:")){
                 contentLength = Integer.parseInt(tokens[1]);
+            }
+            if(tokens[0].equals("Cookie:")){
+                int index = line.indexOf(":") + 1;
+                cookies = HttpRequestUtils.parseCookies(line.substring(index));
             }
         }
 
@@ -70,5 +75,9 @@ public class HttpRequest {
 
     public String getBody() {
         return body;
+    }
+
+    public Map<String,String> getCookies() {
+        return cookies;
     }
 }

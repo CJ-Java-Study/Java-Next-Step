@@ -41,6 +41,11 @@ public class RequestHandler extends Thread {
                 return;
             }
 
+            if(httpRequest.isGet() && path.equals("/user/list")){
+                UserRequestHandler.handleGetUserList(httpRequest, dos);
+                return;
+            }
+
             // 모두 아닌 경우 파일로 처리
             handleGetFile(httpRequest, dos);
 
@@ -68,7 +73,7 @@ public class RequestHandler extends Thread {
 
             byte[] body = Files.readAllBytes(file.toPath());
             boolean isCss = httpRequest.getPath().endsWith(".css");
-            HttpResponseBuilder.response200Header(dos, body.length, isCss, "");
+            HttpResponseBuilder.response200Header(dos, body.length, isCss, null);
             HttpResponseBuilder.responseBody(dos, body);
         }
     }

@@ -20,7 +20,7 @@ public class HttpResponseBuilder {
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
 
             if(cookies != null) {
-                dos.writeBytes("Set-Cookie: " + lengthOfBodyContent + "\r\n");
+                dos.writeBytes("Set-Cookie: " + cookies + "\r\n");
             }
 
             dos.writeBytes("\r\n");
@@ -41,11 +41,16 @@ public class HttpResponseBuilder {
         }
     }
 
-    public static void response302Header(DataOutputStream dos, String url) {
+    public static void response302Header(DataOutputStream dos, String url, String cookies) {
         try {
             dos.writeBytes("HTTP/1.1 302 Found \r\n");
             dos.writeBytes("Location: " + url + "\r\n");
             dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+
+            if(cookies != null) {
+                dos.writeBytes("Set-Cookie: " + cookies + "\r\n");
+            }
+
             dos.writeBytes("\r\n");
         } catch (IOException e) {
             log.error(e.getMessage());
@@ -59,7 +64,7 @@ public class HttpResponseBuilder {
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
 
             if(cookies != null) {
-                dos.writeBytes("Set-Cookie: " + lengthOfBodyContent + "\r\n");
+                dos.writeBytes("Set-Cookie: " + cookies + "\r\n");
             }
 
             dos.writeBytes("\r\n");

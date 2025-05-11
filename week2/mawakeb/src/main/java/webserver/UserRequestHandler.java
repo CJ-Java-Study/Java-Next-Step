@@ -11,7 +11,9 @@ import util.HttpResponseBuilder;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.List;
 import java.util.Map;
 
 import static util.HttpResponseBuilder.responseBody;
@@ -28,7 +30,7 @@ public class UserRequestHandler {
         DataBase.addUser(user);
         log.debug("USER CREATED: " + user);
 
-        HttpResponseBuilder.response302Header(dos, "/index.html");
+        HttpResponseBuilder.response302Header(dos, "/index.html", null);
     }
 
     // POST user/login 처리
@@ -37,25 +39,63 @@ public class UserRequestHandler {
         User user = login(paramMap.get("userId"), paramMap.get("password"));
 
         if (user == null) {
-            byte[] body = Files.readAllBytes(new File("./week2/mawakeb/webapp/user/login_failed.html").toPath());
-            HttpResponseBuilder.response200Header(dos, body.length, false,"logined=false");
-            responseBody(dos, body);
+            HttpResponseBuilder.response302Header(dos, "/user/login_failed.html", "logined=false");
             log.debug("LOGIN FAILED");
             return;
         }
 
-        byte[] body = Files.readAllBytes(new File("./week2/mawakeb/webapp/index.html").toPath());
-        HttpResponseBuilder.response200Header(dos, body.length, false, "logined=true");
-        responseBody(dos, body);
+        HttpResponseBuilder.response302Header(dos, "/index.html", "logined=true");
         log.debug("LOGIN SUCCESS: " + user.getUserId());
     }
 
-    protected static User login(String userId, String password){
+    // GET user/list 처리
+    protected static void handleGetUserList(HttpRequest httpRequest, DataOutputStream dos) throws IOException {
+        String isLoggedIn = httpRequest.getCookies().get("logined");
+
+        if (Boolean.parseBoolean(isLoggedIn)) {
+            //TODO 한글, @ 꺠짐 
+            String userList = getUserList();
+            String bodyStr = Files.readString(new File("./week2/mawakeb/webapp/user/list.html").toPath());
+            bodyStr = bodyStr.replace("<!-- USER_TABLE_PLACEHOLDER -->", userList);
+            byte[] body = bodyStr.getBytes(StandardCharsets.UTF_8);
+            HttpResponseBuilder.response200Header(dos, body.length, false,null);
+            responseBody(dos, body);
+            log.debug("GET USER LIST SUCCESS");
+            return;
+        }
+
+        HttpResponseBuilder.response302Header(dos, "/user/login.html", null);
+        log.debug("LOGIN REQUIRED");
+    }
+
+
+    private static User login(String userId, String password){
         User user = DataBase.findUserById(userId);
         if (user != null && user.getPassword().equals(password)){
             return user;
         }
 
         return null;
+    }
+
+    protected static String getUserList(){
+        List<User> users = DataBase.findAll().stream().toList();
+
+        StringBuilder table = new StringBuilder();
+        table.append("<table class='table table-hover'>")
+                .append("<thead><tr><th>#</th><th>사용자 아이디</th><th>이름</th><th>이메일</th><th></th></tr></thead>")
+                .append("<tbody>");
+
+        for (User user : users) {
+            table.append("<tr>")
+                    .append("<th scope='row'>").append(user.getUserId()).append("</th>")
+                    .append("<td>").append(user.getName()).append("</td>")
+                    .append("<td>").append(user.getEmail()).append("</td>")
+                    .append("<td><a href=\"#\" class=\"btn btn-success\" role=\"button\">수정</a></td>")
+                    .append("</tr>");
+        }
+        table.append("</tbody></table>");
+
+        return table.toString();
     }
 }
