@@ -16,31 +16,13 @@ public class HttpRequestUtils {
     /**
      *  @param HTTP 요청 정보
      *
-     *  @return URL
-     */
-    public static String parseRequestUrl(BufferedReader br) throws IOException {
-        String url = "";
-        String line;
-
-        if((line = br.readLine()) != null && !line.isEmpty()) {
-            String[] tokens = line.split(" ");
-            if (tokens.length >= 2) {
-                url = tokens[1];
-            }
-        }
-
-        return url;
-    }
-
-    /**
-     *  @param HTTP 요청 정보
-     *
      *  @return Content-Length
      */
     public static int parseContentLength(BufferedReader br) throws IOException {
         String line;
         int contentLength = 0;
         while ((line = br.readLine()) != null && !line.isEmpty()) {
+            System.out.println(line);
             if (line.startsWith("Content-Length:")) {
                 contentLength = Integer.parseInt(line.split(":")[1].trim());
             }

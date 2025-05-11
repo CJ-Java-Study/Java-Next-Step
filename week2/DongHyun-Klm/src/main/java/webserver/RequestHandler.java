@@ -27,14 +27,17 @@ public class RequestHandler extends Thread {
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
-            String url = HttpRequestUtils.parseRequestUrl(br);
+            String firstLine = br.readLine();
+            String[] tokens = firstLine.split(" ");
+            String method = tokens[0];
+            String url    = tokens[1];
             String path = HttpRequestUtils.getPath(url);
             String queryString = HttpRequestUtils.getQueryString(url);
-            log.info("요청 path: {}, queryString: {}", path, queryString);
+            int contentLength = HttpRequestUtils.parseContentLength(br);
+            log.info("요청 method: {}, path: {}, queryString: {}", method, path, queryString);
 
             // 회원가입 요청 처리 로직 Strat
-            if(url.startsWith("/user/create")) {
-                int contentLength = HttpRequestUtils.parseContentLength(br);
+            if("POST".equals(method) && url.startsWith("/user/create")) {
                 String requestBody = IOUtils.readData(br, contentLength);
                 Map<String, String> params = HttpRequestUtils.parseQueryString(requestBody);
 
