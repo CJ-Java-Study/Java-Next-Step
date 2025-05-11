@@ -56,10 +56,46 @@ public class RequestHandler extends Thread {
                 return;
             }
 
+            // 로그인 요청 처리 로직 Strat
+            if("POST".equals(method) && url.startsWith("/user/login")) {
+                String requestBody = IOUtils.readData(br, contentLength);
+                Map<String, String> params = HttpRequestUtils.parseQueryString(requestBody);
+
+                String userId   = params.get("userId");
+                String password = params.get("password");
+                log.info("로그인 요청 - userId: {}, password: {}", userId, password);
+
+                User user = DataBase.findUserById(userId);
+                log.info("조회 사용자 - {}", user);
+                DataOutputStream dos = new DataOutputStream(out);
+                if(user != null && user.getPassword().equals(password)) { // 로그인 성공
+                    byte[] body = Files.readAllBytes(new File("./webapp/index.html").toPath());
+                    response200HeaderWithCookie(dos, body.length);
+                    responseBody(dos, body);
+                } else { // 로그인 실패
+                    byte[] body = Files.readAllBytes(new File("./webapp/user/login_failed.html").toPath());
+                    response401HeaderWithCookie(dos, body.length);
+                    responseBody(dos, body);
+                }
+                return;
+            }
+
             DataOutputStream dos = new DataOutputStream(out);
             byte[] body = Files.readAllBytes(new File("./webapp" + path).toPath());
             response200Header(dos, body.length);
             responseBody(dos, body);
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    private void response401HeaderWithCookie(DataOutputStream dos, int lengthOfBodyContent) {
+        try {
+            dos.writeBytes("HTTP/1.1 401 Unauthorized\r\n");
+            dos.writeBytes("Set-Cookie: logined=false" + "\r\n");
+            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+            dos.writeBytes("\r\n");
         } catch (IOException e) {
             log.error(e.getMessage());
         }
@@ -79,6 +115,18 @@ public class RequestHandler extends Thread {
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
         try {
             dos.writeBytes("HTTP/1.1 200 OK \r\n");
+            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+            dos.writeBytes("\r\n");
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    private void response200HeaderWithCookie(DataOutputStream dos, int lengthOfBodyContent) throws IOException {
+        try{
+            dos.writeBytes("HTTP/1.1 200 OK\r\n");
+            dos.writeBytes("Set-Cookie: logined=true" + "\r\n");
             dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
             dos.writeBytes("\r\n");
