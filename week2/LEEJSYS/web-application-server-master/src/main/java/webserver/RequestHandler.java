@@ -45,11 +45,38 @@ public class RequestHandler extends Thread {
 
             DataOutputStream dos = new DataOutputStream(out);
 
-            serveIndexFile(url, dos);
+            if (url.startsWith("/user/create") && method.equals("GET")) {
+                handleUserCreate(url, dos);
+            } else {
+                serveIndexFile(url, dos);
+            }
 
         } catch (IOException e) {
             log.error(e.getMessage());
         }
+    }
+
+    private void handleUserCreate(String url, DataOutputStream dos) throws IOException {
+        int index = url.indexOf("?");
+        if (index == -1) {
+            response404(dos, "잘못된 요청입니다.");
+            return;
+        }
+
+        String queryString = url.substring(index + 1);
+        Map<String, String> params = HttpRequestUtils.parseQueryString(queryString);
+
+        User user = new User(
+                params.get("userId"),
+                params.get("password"),
+                params.get("name"),
+                params.get("email")
+        );
+
+        log.debug("회원가입 요청 처리: {}", user);
+
+        byte[] body = "회원가입 완료".getBytes();
+        response200(dos, body);
     }
 
     private void serveIndexFile(String url, DataOutputStream dos) throws IOException {
