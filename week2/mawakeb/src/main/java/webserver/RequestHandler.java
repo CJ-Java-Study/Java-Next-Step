@@ -29,39 +29,29 @@ public class RequestHandler extends Thread {
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             DataOutputStream dos = new DataOutputStream(out);
-            byte[] body = parseRequest(in); // parse request body
-            response200Header(dos, body.length);
-            responseBody(dos, body);
+            HttpHeader header = getHeader(in);
+            String path = header.getPath();
+            byte[] body;
+
+            if(header.isGet() && path.endsWith(".html")){
+                body = Files.readAllBytes(new File("./week2/mawakeb/webapp" + path).toPath());
+                response200Header(dos, body.length);
+                responseBody(dos, body);
+            }
+
+            if(header.isPost() && path.equals("/user/create")){
+                response302Header(dos, "/index.html");
+            }
+            
         } catch (IOException e) {
             log.error(e.getMessage());
         }
     }
 
-    private byte[] parseRequest(InputStream in){
-
-        byte[] body = "404 Error".getBytes();
-
-        try {
-            InputStreamReader sr = new InputStreamReader(in);
-            BufferedReader br = new BufferedReader(sr);
-
-            HttpHeader header = new HttpHeader(br);
-            String path = header.getPath();
-
-            if(header.isGet() && path.endsWith(".html")){
-                body = Files.readAllBytes(new File("./week2/mawakeb/webapp" + path).toPath());
-            }
-
-            if(header.isPost() && path.equals("/user/create")){
-                createUser(br, header.getContentLength());
-            }
-
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            body = e.getMessage().getBytes();
-        }
-
-        return body;
+    private HttpHeader getHeader(InputStream in) throws IOException {
+        InputStreamReader sr = new InputStreamReader(in);
+        BufferedReader br = new BufferedReader(sr);
+        return new HttpHeader(br);
     }
 
     // POST user/create 처리
@@ -77,6 +67,17 @@ public class RequestHandler extends Thread {
             dos.writeBytes("HTTP/1.1 200 OK \r\n");
             dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+            dos.writeBytes("\r\n");
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    private void response302Header(DataOutputStream dos, String url) {
+        try {
+            dos.writeBytes("HTTP/1.1 302 Found \r\n");
+            dos.writeBytes("Location: " + url + "\r\n");
+            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
             dos.writeBytes("\r\n");
         } catch (IOException e) {
             log.error(e.getMessage());
