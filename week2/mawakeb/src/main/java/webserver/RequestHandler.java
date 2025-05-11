@@ -3,13 +3,16 @@ package webserver;
 import java.io.*;
 import java.net.Socket;
 import java.nio.file.Files;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import model.HttpHeader;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.HttpRequestUtils;
+import util.IOUtils;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
@@ -41,31 +44,16 @@ public class RequestHandler extends Thread {
         try {
             InputStreamReader sr = new InputStreamReader(in);
             BufferedReader br = new BufferedReader(sr);
-            String line;
 
-            while ((line = br.readLine()) != null && !line.isEmpty()) {
-                String[] tokens = line.split(" ");
+            HttpHeader header = new HttpHeader(br);
+            String path = header.getPath();
 
-                if(tokens.length >= 2 && tokens[0].equals("GET")){
-                    String url = tokens[1];
+            if(header.isGet() && path.endsWith(".html")){
+                body = Files.readAllBytes(new File("./week2/mawakeb/webapp" + path).toPath());
+            }
 
-                    if(url.endsWith(".html")){
-                        body = Files.readAllBytes(new File("./week2/mawakeb/webapp" + url).toPath());
-                    }
-
-                    int queryIndex = url.indexOf("?");
-                    if(queryIndex > 0) {
-                        String path = url.substring(0, queryIndex);
-                        String params = url.substring(queryIndex+1);
-
-                        if(path.equals("/user/create")){
-                            Map<String, String> paramMap = HttpRequestUtils.parseQueryString(params);
-                            User user = new User(paramMap);
-                            log.debug("USER CREATED: " + user.toString());
-                        }
-                    }
-
-                }
+            if(header.isPost() && path.equals("/user/create")){
+                createUser(br, header.getContentLength());
             }
 
         } catch (Exception e) {
@@ -74,6 +62,14 @@ public class RequestHandler extends Thread {
         }
 
         return body;
+    }
+
+    // POST user/create 처리
+    private void createUser(BufferedReader br, int contentLength) throws IOException {
+        String params = IOUtils.readData(br, contentLength);
+        Map<String, String> paramMap = HttpRequestUtils.parseQueryString(params);
+        User user = new User(paramMap);
+        log.debug("USER CREATED: " + user);
     }
 
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
