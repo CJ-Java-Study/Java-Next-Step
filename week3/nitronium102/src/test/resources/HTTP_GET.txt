@@ -1,0 +1,4 @@
+GET /user/create?userId=nitronium&passsword=password&name=nitro HTTP/1.1
+Host: localhost:8080
+Connection: keep-alive
+Accept: */*
