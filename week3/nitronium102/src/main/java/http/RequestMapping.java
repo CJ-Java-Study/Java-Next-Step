@@ -1,6 +1,7 @@
 package http;
 
 import http.controller.CreateUserController;
+import http.controller.HttpController;
 import http.controller.ListUserController;
 import http.controller.LoginController;
 
