@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.net.http.HttpRequest;
 import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -18,7 +17,7 @@ class HttpRequestTest {
 
     @Test
     @DisplayName("GET 요청 전체 파싱")
-    void parseGetRequestInputStream() throws Exception {
+    void parseGetRequestInputStream() {
         String request =
                 "GET /user/create?userId=" + USER_ID +
                         "&passsword=" + USER_PASSWORD +
@@ -43,7 +42,7 @@ class HttpRequestTest {
 
     @Test
     @DisplayName("POST 요청 전체 파싱")
-    void parsePostRequestInputStream() throws Exception {
+    void parsePostRequestInputStream() {
         String body = "userId=" + USER_ID +
                 "&passsword=" + USER_PASSWORD +
                 "&name=" + USER_NAME;
