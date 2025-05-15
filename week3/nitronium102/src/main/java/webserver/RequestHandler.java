@@ -5,9 +5,9 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
+import http.HttpRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.HttpRequestUtils;
 import util.ResponseUtils;
 
 public class RequestHandler extends Thread {
@@ -27,54 +27,24 @@ public class RequestHandler extends Thread {
                 connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            // HTTP 요청 정보 파싱
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
-
-            String line = bufferedReader.readLine();
-            if (line == null) {
-                return;
-            }
-            // HTTP 요청 URL 파싱
-            String url = HttpRequestUtils.getRequestUrl(line);
-            log.debug("url : {}", url);
-
-            int contentLength = 0;
-            boolean isLogin = false;
-            while (!line.isEmpty()) {
-                line = bufferedReader.readLine();
-                if (line.contains("Cookie")) {
-                    String cookie = line.split(":")[1].trim();
-                    if (cookie.contains("logined=true")) {
-                        isLogin = true;
-                    }
-                }
-                if (line.contains("Content-Length")) {
-                    contentLength = Integer.parseInt(line.split(":")[1].trim());
-                }
-            }
-
+            HttpRequest httpRequest = new HttpRequest(in);
             DataOutputStream dos = new DataOutputStream(out);
-            checkIsCss(dos, url);
+            String path = httpRequest.getPath();
 
-            switch (url) {
-                case "/user/create":
-                    userRequestHandler.handleUserCreate(bufferedReader, contentLength, dos);
-                    break;
-                case "/user/login":
-                    userRequestHandler.handleUserLogin(bufferedReader, contentLength, dos);
-                    break;
-                case "/user/list":
-                    if (!isLogin) {
-                        responseUtils.send302Redirect(dos, "/user/login.html");
-                        return;
-                    }
-                    userRequestHandler.handleUserList(dos);
-
-                    break;
-                default:
-                    byte[] body = readWebappFile(url);
-                    responseUtils.send200Response(dos, body);
-                    break;
+            if ("/user/create".equals(path)) {
+                userRequestHandler.handleUserCreate(httpRequest, dos);
+            } else if ("/user/login".equals(path)) {
+                userRequestHandler.handleUserLogin(httpRequest, dos);
+            } else if ("/user/list".equals(path)) {
+                if (httpRequest.isLoggedIn()) {
+                    responseUtils.send302Redirect(dos, "/user/login.html");
+                    return;
+                }
+                userRequestHandler.handleUserList(dos);
+            } else if (path.endsWith(".css")) {
+                responseCssResource(dos, path);
+            } else {
+                responseResource(dos, path);
             }
         } catch (
                 IOException e) {
@@ -82,11 +52,14 @@ public class RequestHandler extends Thread {
         }
     }
 
-    private void checkIsCss(DataOutputStream dos, String url) {
-        if (url.endsWith(".css")) {
-            byte[] body = readWebappFile(url);
-            responseUtils.send200CssResponse(dos, body);
-        }
+    private void responseCssResource(DataOutputStream dos, String url) {
+        byte[] body = readWebappFile(url);
+        responseUtils.send200CssResponse(dos, body);
+    }
+
+    private void responseResource(DataOutputStream dos, String url) {
+        byte[] body = readWebappFile(url);
+        responseUtils.send200Response(dos, body);
     }
 
     /**
