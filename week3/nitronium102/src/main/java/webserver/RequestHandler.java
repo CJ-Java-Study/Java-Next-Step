@@ -2,17 +2,16 @@ package webserver;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.Map;
 
+import db.DataBase;
 import http.HttpRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import util.ResponseUtils;
+import http.HttpResponse;
+import lombok.extern.slf4j.Slf4j;
+import model.User;
 
+@Slf4j
 public class RequestHandler extends Thread {
-    private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
-    private static final ResponseUtils responseUtils = new ResponseUtils();
-    private static final UserRequestHandler userRequestHandler = new UserRequestHandler();
-
     private Socket connection;
 
     public RequestHandler(Socket connectionSocket) {
@@ -26,37 +25,49 @@ public class RequestHandler extends Thread {
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             HttpRequest httpRequest = new HttpRequest(in);
-            DataOutputStream dos = new DataOutputStream(out);
+            HttpResponse response = new HttpResponse(out);
             String path = httpRequest.getPath();
 
             if ("/user/create".equals(path)) {
-                userRequestHandler.handleUserCreate(httpRequest, dos);
+                Map<String, String> params = httpRequest.getParameterMap();
+                User user = new User(
+                        params.get("userId"),
+                        params.get("password"),
+                        params.get("name"),
+                        params.get("email")
+                );
+                log.debug("user : {}", user);
+                DataBase.addUser(user);
+                response.sendRedirect("/index.html");
             } else if ("/user/login".equals(path)) {
-                userRequestHandler.handleUserLogin(httpRequest, dos);
+                Map<String, String> params = httpRequest.getParameterMap();
+                User user = DataBase.findUserById(params.get("userId"));
+                if (user != null && user.getPassword().equals(params.get("password"))) {
+                    response.addHeader("Set-Cookie", "logined=true");
+                    response.sendRedirect("/index.html");
+                } else {
+                    response.sendRedirect("/user/login_failed.html");
+                }
             } else if ("/user/list".equals(path)) {
                 if (httpRequest.isLoggedIn()) {
-                    responseUtils.send302Redirect(dos, "/user/login.html");
+                    response.sendRedirect("/user/login.html");
                     return;
                 }
-                userRequestHandler.handleUserList(dos);
-            } else if (path.endsWith(".css")) {
-                responseCssResource(dos, path);
+                StringBuilder sb = new StringBuilder();
+                for (User user : DataBase.findAll()) {
+                    sb.append("<tr>");
+                    sb.append("<td>" + user.getUserId() + "</td>");
+                    sb.append("<td>" + user.getName() + "</td>");
+                    sb.append("<td>" + user.getEmail() + "</td>");
+                    sb.append("<tr>");
+                }
+                response.forwardBody(sb.toString());
             } else {
-                responseResource(dos, path);
+                response.forward(path);
             }
         } catch (
                 IOException e) {
             log.error(e.getMessage());
         }
-    }
-
-    private void responseCssResource(DataOutputStream dos, String url) {
-        byte[] body = ResponseUtils.readWebappFile(url);
-        responseUtils.send200CssResponse(dos, body);
-    }
-
-    private void responseResource(DataOutputStream dos, String url) {
-        byte[] body = ResponseUtils.readWebappFile(url);
-        responseUtils.send200Response(dos, body);
     }
 }
