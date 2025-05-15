@@ -10,6 +10,10 @@ public enum HttpMethod {
         this.value = value;
     }
 
+    public boolean isPost() {
+        return this == POST;
+    }
+
     public String getValue() {
         return value;
     }
