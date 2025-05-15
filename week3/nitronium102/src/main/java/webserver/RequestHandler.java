@@ -2,8 +2,6 @@ package webserver;
 
 import java.io.*;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 
 import http.HttpRequest;
 import org.slf4j.Logger;
@@ -53,25 +51,12 @@ public class RequestHandler extends Thread {
     }
 
     private void responseCssResource(DataOutputStream dos, String url) {
-        byte[] body = readWebappFile(url);
+        byte[] body = ResponseUtils.readWebappFile(url);
         responseUtils.send200CssResponse(dos, body);
     }
 
     private void responseResource(DataOutputStream dos, String url) {
-        byte[] body = readWebappFile(url);
+        byte[] body = ResponseUtils.readWebappFile(url);
         responseUtils.send200Response(dos, body);
-    }
-
-    /**
-     * webapp 디렉토리에서 파일을 읽어 바이트 배열로 반환.
-     * 파일이 없을 경우 "File Not Found" 메시지 반환.
-     */
-    private byte[] readWebappFile(String url) {
-        try {
-            return Files.readAllBytes(new File("./webapp" + url).toPath());
-        } catch (IOException e) {
-            log.warn("File not found: {}", url);
-            return "File Not Found".getBytes(StandardCharsets.UTF_8);
-        }
     }
 }
