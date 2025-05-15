@@ -56,7 +56,7 @@ public class RequestHandler extends Thread {
 
             DataOutputStream dos = new DataOutputStream(out);
 
-            if (url.startsWith("/user/create") && method.equals("GET")) {
+            if (url.equals("/user/create") && method.equals("GET")) {
                 handleUserCreate(url, dos);
             }else if (url.equals("/user/create") && method.equals("POST")) {
                 handleUserCreatePost(br, headers.get("Content-Length"), dos);
@@ -116,6 +116,7 @@ public class RequestHandler extends Thread {
                 params.get("email")
         );
 
+        DataBase.addUser(user);
         log.debug("POST 회원가입 요청 처리: {}", user);
 
         byte[] responseBody = "회원가입 완료 (POST)".getBytes();
