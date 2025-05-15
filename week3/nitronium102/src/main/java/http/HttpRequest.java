@@ -51,7 +51,7 @@ public class HttpRequest {
     }
 
     private void parseBodyIfNecessary(BufferedReader br) throws Exception {
-        if (method.equals("POST")) {
+        if (requestLine.getMethod().equals("POST")) {
             String contentLength = headers.get("Content-Length");
             if (contentLength != null) {
                 int length = Integer.parseInt(contentLength);

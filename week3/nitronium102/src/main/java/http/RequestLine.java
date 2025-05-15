@@ -24,7 +24,6 @@ public class RequestLine {
         if (tokens.length < 2) {
             throw new IllegalArgumentException("Invalid request line: Not enough tokens");
         }
-
         method = tokens[0];
 
         int index = tokens[1].indexOf("?");
