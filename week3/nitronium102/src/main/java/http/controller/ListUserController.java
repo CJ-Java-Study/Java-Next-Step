@@ -1,15 +1,14 @@
 package http.controller;
 
 import db.DataBase;
-import http.HttpController;
 import http.HttpRequest;
 import http.HttpResponse;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class ListUserController implements HttpController {
+public class ListUserController extends AbstractController  {
     @Override
-    public void service(HttpRequest request, HttpResponse response) {
+    protected void doGet(HttpRequest request, HttpResponse response) {
         if (request.isLoggedIn()) {
             response.sendRedirect("/user/login.html");
             return;

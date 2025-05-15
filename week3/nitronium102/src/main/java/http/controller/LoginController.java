@@ -1,7 +1,6 @@
 package http.controller;
 
 import db.DataBase;
-import http.HttpController;
 import http.HttpRequest;
 import http.HttpResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -10,9 +9,9 @@ import model.User;
 import java.util.Map;
 
 @Slf4j
-public class LoginController implements HttpController {
+public class LoginController extends AbstractController {
     @Override
-    public void service(HttpRequest request, HttpResponse response) {
+    protected void doPost(HttpRequest request, HttpResponse response) {
         Map<String, String> params = request.getParameterMap();
         User user = DataBase.findUserById(params.get("userId"));
         if (user != null && user.getPassword().equals(params.get("password"))) {
