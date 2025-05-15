@@ -14,10 +14,7 @@ import java.util.Map;
 @Slf4j
 public class HttpRequest {
 
-    private String method;
-
-    private String path;
-
+    private RequestLine requestLine;
     private Map<String, String> headers = new HashMap<>();
 
     private Map<String, String> parameter = new HashMap<>();
@@ -37,21 +34,8 @@ public class HttpRequest {
         if (line == null || line.isEmpty()) {
             throw new IllegalArgumentException("Invalid request line: Request line is null or empty");
         }
-        log.info("request line : {}", line);
-
-        String[] tokens = line.split(" ");
-        if (tokens.length < 2) {
-            throw new IllegalArgumentException("Invalid request line: Not enough tokens");
-        }
-        method = tokens[0];
-
-        int index = tokens[1].indexOf("?");
-        if (index == -1) {
-            path = tokens[1];
-        } else {
-            path = tokens[1].substring(0, index);
-            parameter = HttpRequestUtils.parseQueryString(tokens[1].substring(index + 1));
-        }
+        requestLine = new RequestLine(line);
+        parameter = requestLine.getParams();
     }
 
     private void parseHeaders(BufferedReader br) throws Exception {
@@ -78,11 +62,11 @@ public class HttpRequest {
     }
 
     public String getMethod() {
-        return method;
+        return requestLine.getMethod();
     }
 
     public String getPath() {
-        return path;
+        return requestLine.getPath();
     }
 
     public String getHeader(String name) {
