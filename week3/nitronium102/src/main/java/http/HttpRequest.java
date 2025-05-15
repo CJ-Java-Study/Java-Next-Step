@@ -61,6 +61,15 @@ public class HttpRequest {
         }
     }
 
+    public boolean isLoggedIn() {
+        String cookieValue = headers.get("Cookie");
+        if (cookieValue == null) {
+            return false;
+        }
+        Map<String, String> cookies = HttpRequestUtils.parseCookies(cookieValue);
+        return cookies.get("logined") != null && Boolean.parseBoolean(cookies.get("logined"));
+    }
+
     public String getMethod() {
         return requestLine.getMethod();
     }
@@ -75,5 +84,9 @@ public class HttpRequest {
 
     public String getParameter(String name) {
         return parameter.get(name);
+    }
+
+    public Map<String, String> getParameterMap() {
+        return parameter;
     }
 }
