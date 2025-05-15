@@ -70,7 +70,7 @@ public class HttpRequest {
         return cookies.get("logined") != null && Boolean.parseBoolean(cookies.get("logined"));
     }
 
-    public String getMethod() {
+    public HttpMethod getMethod() {
         return requestLine.getMethod();
     }
 

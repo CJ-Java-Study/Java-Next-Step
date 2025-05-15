@@ -12,7 +12,7 @@ import java.util.Objects;
 @Slf4j
 public class RequestLine {
 
-    private final String method;
+    private final HttpMethod method;
     private final String path;
     private  Map<String, String> params = new HashMap<>();
 
@@ -24,7 +24,7 @@ public class RequestLine {
         if (tokens.length < 2) {
             throw new IllegalArgumentException("Invalid request line: Not enough tokens");
         }
-        method = tokens[0];
+        method = HttpMethod.valueOf(tokens[0]);
 
         int index = tokens[1].indexOf("?");
         if (index == -1) {
