@@ -1,7 +1,7 @@
 package util;
 
-import model.HTTPMethod;
-import model.HttpRequest;
+import model.enums.HTTPMethod;
+import model.Http.HttpRequest;
 import org.junit.Test;
 
 import java.io.*;

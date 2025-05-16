@@ -1,66 +1,62 @@
 package webserver;
 
 import db.DataBase;
-import model.HttpRequest;
+import model.Http.HttpRequest;
+import model.Http.HttpResponse;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.HttpResponseBuilder;
 
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
-
-import static util.HttpResponseBuilder.responseBody;
 
 public class UserRequestHandler {
 
     private static final Logger log = LoggerFactory.getLogger(UserRequestHandler.class);
 
     // POST user/create 처리
-    protected static void handleCreateUser(HttpRequest httpRequest, DataOutputStream dos) throws IOException {
-       User user = new User(httpRequest.getParametersMap());
+    protected static void handleCreateUser(HttpRequest httpRequest, HttpResponse httpResponse) throws IOException {
+        User user = new User(httpRequest.getParametersMap());
         DataBase.addUser(user);
         log.debug("USER CREATED: " + user);
 
-        HttpResponseBuilder.response302Header(dos, "/index.html", null);
+        httpResponse.sendRedirect("/index.html");
     }
 
     // POST user/login 처리
-    protected static void handleLoginUser(HttpRequest httpRequest, DataOutputStream dos) throws IOException {
+    protected static void handleLoginUser(HttpRequest httpRequest, HttpResponse httpResponse) throws IOException {
         Map<String, String> paramMap = httpRequest.getParametersMap();
         User user = login(paramMap.get("userId"), paramMap.get("password"));
 
         if (user == null) {
-            HttpResponseBuilder.response302Header(dos, "/user/login_failed.html", "logined=false");
+            httpResponse.addHeader("Set-Cookie", "logined=false");
+            httpResponse.sendRedirect("/user/login_failed.html");
             log.debug("LOGIN FAILED");
             return;
         }
 
-        HttpResponseBuilder.response302Header(dos, "/index.html", "logined=true");
+        httpResponse.addHeader("Set-Cookie", "logined=true");
+        httpResponse.sendRedirect("/index.html");
         log.debug("LOGIN SUCCESS: " + user.getUserId());
     }
 
     // GET user/list 처리
-    protected static void handleGetUserList(HttpRequest httpRequest, DataOutputStream dos) throws IOException {
-        String isLoggedIn = httpRequest.getCookies().get("logined");
+    protected static void handleGetUserList(HttpRequest httpRequest, HttpResponse httpResponse) throws IOException {
+        String isLoggedIn = httpRequest.getCookie("logined");
 
         if (Boolean.parseBoolean(isLoggedIn)) {
             String userList = getUserList();
-            String bodyStr = Files.readString(new File("./week2/mawakeb/webapp/user/list.html").toPath());
-            bodyStr = bodyStr.replace("<!-- USER_TABLE_PLACEHOLDER -->", userList);
-            byte[] body = bodyStr.getBytes(StandardCharsets.UTF_8);
-            HttpResponseBuilder.response200Header(dos, body.length, false,null);
-            responseBody(dos, body);
+            String body = Files.readString(new File("./week2/mawakeb/webapp/user/list.html").toPath());
+            body = body.replace("<!-- USER_TABLE_PLACEHOLDER -->", userList);
+            httpResponse.forwardBody(body);
             log.debug("GET USER LIST SUCCESS");
             return;
         }
 
-        HttpResponseBuilder.response302Header(dos, "/user/login.html", null);
+        httpResponse.sendRedirect("/user/login.html");
         log.debug("LOGIN REQUIRED");
     }
 

@@ -1,5 +1,6 @@
-package model;
+package model.Http;
 
+import model.enums.HTTPMethod;
 import util.HttpRequestUtils;
 import util.IOUtils;
 
@@ -59,7 +60,7 @@ public class HttpRequest {
         while ((line = br.readLine()) != null && !line.isEmpty()) {
             tokens = line.split(": ");
 
-            if(tokens[0].equals("Cookie:")){
+            if(tokens[0].equals("Cookie")){
                 int index = line.indexOf(":") + 1;
                 cookies = HttpRequestUtils.parseCookies(line.substring(index));
                 continue;
@@ -84,6 +85,10 @@ public class HttpRequest {
 
     public Map<String,String> getCookies() {
         return cookies;
+    }
+
+    public String getCookie(String key) {
+        return cookies == null ? null : cookies.get(key);
     }
 
     public String getHeader(String key) {
