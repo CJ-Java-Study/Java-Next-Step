@@ -5,7 +5,6 @@ import model.HttpRequest;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.HttpRequestUtils;
 import util.HttpResponseBuilder;
 
 import java.io.DataOutputStream;
@@ -24,9 +23,7 @@ public class UserRequestHandler {
 
     // POST user/create 처리
     protected static void handleCreateUser(HttpRequest httpRequest, DataOutputStream dos) throws IOException {
-        Map<String, String> paramMap = HttpRequestUtils.parseQueryString(httpRequest.getBody());
-
-        User user = new User(paramMap);
+       User user = new User(httpRequest.getParametersMap());
         DataBase.addUser(user);
         log.debug("USER CREATED: " + user);
 
@@ -35,7 +32,7 @@ public class UserRequestHandler {
 
     // POST user/login 처리
     protected static void handleLoginUser(HttpRequest httpRequest, DataOutputStream dos) throws IOException {
-        Map<String, String> paramMap = HttpRequestUtils.parseQueryString(httpRequest.getBody());
+        Map<String, String> paramMap = httpRequest.getParametersMap();
         User user = login(paramMap.get("userId"), paramMap.get("password"));
 
         if (user == null) {

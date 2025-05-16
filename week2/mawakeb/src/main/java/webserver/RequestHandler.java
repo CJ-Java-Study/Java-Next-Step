@@ -29,7 +29,7 @@ public class RequestHandler extends Thread {
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             DataOutputStream dos = new DataOutputStream(out);
-            HttpRequest httpRequest = getHttpRequest(in);
+            HttpRequest httpRequest = new HttpRequest(in);
             String path = httpRequest.getPath();
 
             if(httpRequest.isPost() && path.equals("/user/create")){
@@ -59,12 +59,6 @@ public class RequestHandler extends Thread {
         } catch (IOException e) {
             log.error(e.getMessage());
         }
-    }
-
-    private HttpRequest getHttpRequest(InputStream in) throws IOException {
-        InputStreamReader sr = new InputStreamReader(in, StandardCharsets.UTF_8);
-        BufferedReader br = new BufferedReader(sr);
-        return new HttpRequest(br);
     }
 
     // html 혹은 css 파일
