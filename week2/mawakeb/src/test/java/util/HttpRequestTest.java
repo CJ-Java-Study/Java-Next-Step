@@ -1,5 +1,6 @@
 package util;
 
+import model.HTTPMethod;
 import model.HttpRequest;
 import org.junit.Test;
 
@@ -22,7 +23,7 @@ public class HttpRequestTest {
         InputStream inputStream = new ByteArrayInputStream(httpRequest.getBytes(StandardCharsets.UTF_8));
         HttpRequest request = new HttpRequest(inputStream);
 
-        assertEquals("GET", request.getMethod());
+        assertEquals(HTTPMethod.GET, request.getMethod());
         assertEquals("/user/create", request.getPath());
         assertEquals("keep-alive", request.getHeader("Connection"));
         assertEquals("javajigi", request.getParameter("userId"));
@@ -42,7 +43,7 @@ public class HttpRequestTest {
         InputStream inputStream = new ByteArrayInputStream(httpRequest.getBytes(StandardCharsets.UTF_8));
         HttpRequest request = new HttpRequest(inputStream);
 
-        assertEquals("POST", request.getMethod());
+        assertEquals(HTTPMethod.POST, request.getMethod());
         assertEquals("/user/create", request.getPath());
         assertEquals("keep-alive", request.getHeader("Connection"));
         assertEquals("javajigi", request.getParameter("userId"));

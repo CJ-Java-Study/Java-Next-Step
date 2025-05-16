@@ -13,7 +13,7 @@ import java.util.Map;
 
 public class HttpRequest {
 
-    private String method;
+    private HTTPMethod method;
     private String path;
     private Map<String,String> header = new HashMap<>();
     private Map<String,String> cookies;
@@ -27,11 +27,11 @@ public class HttpRequest {
 
         parseRequestLine(line);
 
-        if (isGet()) parseQueryString();
+        if (method.isGet()) parseQueryString();
 
         parseHeaders(br);
 
-        if (isPost()) parseBody(br);
+        if (method.isPost()) parseBody(br);
     }
 
     private void parseRequestLine(String line) {
@@ -39,7 +39,7 @@ public class HttpRequest {
         if (tokens.length < 3 ){
             return;
         }
-        this.method = tokens[0];
+        this.method = HTTPMethod.parseMethod(tokens[0]);
         this.path = tokens[1];
     }
 
@@ -72,18 +72,9 @@ public class HttpRequest {
     private void parseBody(BufferedReader br) throws IOException {
         String body = IOUtils.readData(br, Integer.parseInt(header.get("Content-Length")));
         parameters = HttpRequestUtils.parseQueryString(body);
-
     }
 
-    public boolean isGet(){
-        return "GET".equals(method);
-    }
-
-    public boolean isPost(){
-        return "POST".equals(method);
-    }
-
-    public String getMethod() {
+    public HTTPMethod getMethod() {
         return method;
     }
 

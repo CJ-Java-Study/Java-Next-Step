@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.util.Map;
 
 import db.DataBase;
+import model.HTTPMethod;
 import model.HttpRequest;
 import model.User;
 import org.slf4j.Logger;
@@ -30,25 +31,27 @@ public class RequestHandler extends Thread {
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             DataOutputStream dos = new DataOutputStream(out);
             HttpRequest httpRequest = new HttpRequest(in);
+
+            HTTPMethod method = httpRequest.getMethod();
             String path = httpRequest.getPath();
 
-            if(httpRequest.isPost() && path.equals("/user/create")){
+            if(method.isPost() && path.equals("/user/create")){
                 UserRequestHandler.handleCreateUser(httpRequest, dos);
                 return;
             }
 
-            if(httpRequest.isPost() && path.equals("/user/login")){
+            if(method.isPost() && path.equals("/user/login")){
                 UserRequestHandler.handleLoginUser(httpRequest, dos);
                 return;
             }
 
-            if(httpRequest.isGet() && path.equals("/user/list")){
+            if(method.isGet() && path.equals("/user/list")){
                 UserRequestHandler.handleGetUserList(httpRequest, dos);
                 return;
             }
 
             // 우측 상단 버튼으로 조회될 수 있게
-            if(httpRequest.isGet() && path.equals("/user/list.html")){
+            if(method.isGet() && path.equals("/user/list.html")){
                 UserRequestHandler.handleGetUserList(httpRequest, dos);
                 return;
             }
@@ -63,7 +66,7 @@ public class RequestHandler extends Thread {
 
     // html 혹은 css 파일
     private void handleGetFile(HttpRequest httpRequest, DataOutputStream dos) throws IOException {
-        if(httpRequest.isGet()) {
+        if(httpRequest.getMethod().isGet()) {
             String path = httpRequest.getPath();
             File file = new File("./week2/mawakeb/webapp" + path);
 
