@@ -68,4 +68,22 @@ userId=test123&password=pass123&name=%ED%99%8D%EA%B8%B8%EB%8F%99&email=test%40ex
 * 2XX 성공, 3XX 리다이렉션/추가액션, 4XX 요청에러, 5XX 서버에러
 * Set-Cookie로 쿠키 세팅 가능 > 이후 모든 요청에서 쿠키를 보내므로 쿠키값으로 상태 확인가능
 <br> 클라이언트에서 저장하면 보안이 취약해 이후 서버에서 저장하는 세션 등장
-* 
+
+
+# 5장 웹서버 리팩토링
+* 점점 내가 아는 MVC 형태를 찾아가는게 신기하다! 아직 갈길이 멀지만...
+* Abstract class
+  * extend
+  * Link subcategories 
+  * Like Animal - Dog 
+  * Both of them can have code
+* Interface
+  * implement
+  * Link traits or a function that is not really related
+  * Like Drivable - Car
+  * Interfaces are empty, they only suggest the structure
+* 말그대로 extend, implement
+* 현재 웹서버 문제
+  * DB 없음 
+  * Http 직접 파싱 및 작성 어려움
+  * 동적 html 생성 어려움 
