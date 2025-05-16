@@ -6,9 +6,11 @@ import model.Http.HttpResponse;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.FileUtil;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 public class UserListController extends AbstractController {
@@ -22,7 +24,8 @@ public class UserListController extends AbstractController {
 
             if (Boolean.parseBoolean(isLoggedIn)) {
                 String userList = getUserList();
-                String body = Files.readString(new File("./week2/mawakeb/webapp/user/list.html").toPath());
+                Path filePath = FileUtil.loadPath("/user/list.html");
+                String body = Files.readString(filePath);
                 body = body.replace("<!-- USER_TABLE_PLACEHOLDER -->", userList);
                 response.forwardBody(body);
                 log.debug("GET USER LIST SUCCESS");
