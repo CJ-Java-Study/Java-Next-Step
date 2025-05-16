@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -18,6 +19,9 @@ public class HttpResponse {
     private static final Logger log = LoggerFactory.getLogger(HttpResponse.class);
     private DataOutputStream dos;
     private Map<String, String> headers = new HashMap<>();
+
+    private final String dev = "./week2/mawakeb/webapp";
+    private final String prd = "/webapp";
 
     public HttpResponse(OutputStream out){
         dos = new DataOutputStream(out);
@@ -30,8 +34,8 @@ public class HttpResponse {
     /* 200 OK 및 기본 요청 및 uri 유지 */
     public void forward(String url) {
         try {
-            File file = new File("./week2/mawakeb/webapp" + url);
-            byte[] body = Files.readAllBytes(file.toPath());
+            log.error("Working dir: " + System.getProperty("user.dir"));
+            byte[] body = loadFile(url);
 
             ContentType contentType = ContentType.fromFileName(url);
             headers.put("Content-Type", contentType.getValue());
@@ -43,6 +47,22 @@ public class HttpResponse {
             log.error(e.getMessage());
         }
 
+    }
+
+    public byte[] loadFile(String url) throws IOException {
+        // 로컬 환경
+        Path devPath = Path.of(dev, url);
+        if (Files.exists(devPath)) {
+            return Files.readAllBytes(devPath);
+        }
+
+        // AWS 환경
+        Path prodPath = Path.of(prd, url);
+        if (Files.exists(prodPath)) {
+            return Files.readAllBytes(prodPath);
+        }
+
+        throw new IOException("존재하지 않는 경로입니다. " + url);
     }
 
     /* 200 OK 기존요청 유지, 파일 대신 만든 페이지 보여주기 */
