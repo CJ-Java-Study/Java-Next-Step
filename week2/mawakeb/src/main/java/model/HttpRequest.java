@@ -20,6 +20,7 @@ public class HttpRequest {
 
     public HttpRequest(BufferedReader br) throws IOException {
         String line = br.readLine();
+        if (line == null) return;
 
         String[] tokens = line.split(" ");
         if (tokens.length < 3 ){

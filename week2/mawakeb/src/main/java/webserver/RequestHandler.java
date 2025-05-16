@@ -2,6 +2,7 @@ package webserver;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Map;
 
@@ -46,6 +47,12 @@ public class RequestHandler extends Thread {
                 return;
             }
 
+            // 우측 상단 버튼으로 조회될 수 있게
+            if(httpRequest.isGet() && path.equals("/user/list.html")){
+                UserRequestHandler.handleGetUserList(httpRequest, dos);
+                return;
+            }
+
             // 모두 아닌 경우 파일로 처리
             handleGetFile(httpRequest, dos);
 
@@ -55,7 +62,7 @@ public class RequestHandler extends Thread {
     }
 
     private HttpRequest getHttpRequest(InputStream in) throws IOException {
-        InputStreamReader sr = new InputStreamReader(in);
+        InputStreamReader sr = new InputStreamReader(in, StandardCharsets.UTF_8);
         BufferedReader br = new BufferedReader(sr);
         return new HttpRequest(br);
     }

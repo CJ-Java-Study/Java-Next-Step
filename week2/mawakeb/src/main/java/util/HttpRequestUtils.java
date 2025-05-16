@@ -1,5 +1,7 @@
 package util;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -46,7 +48,16 @@ public class HttpRequestUtils {
             return null;
         }
 
-        return new Pair(tokens[0], tokens[1]);
+        try {
+            // 한글 및 특수문자 인코딩 오류 해결
+            String key = URLDecoder.decode(tokens[0], StandardCharsets.UTF_8);
+            String value = URLDecoder.decode(tokens[1], StandardCharsets.UTF_8);
+            return new Pair(key, value);
+        } catch (Exception e) {
+            // 실질적으로 UTF-8은 항상 지원되므로 거의 발생하지 않음
+            throw new RuntimeException("UTF-8 decoding failed", e);
+        }
+
     }
 
     public static Pair parseHeader(String header) {

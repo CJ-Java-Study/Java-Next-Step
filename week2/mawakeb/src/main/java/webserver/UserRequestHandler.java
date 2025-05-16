@@ -53,7 +53,6 @@ public class UserRequestHandler {
         String isLoggedIn = httpRequest.getCookies().get("logined");
 
         if (Boolean.parseBoolean(isLoggedIn)) {
-            //TODO 한글, @ 꺠짐 
             String userList = getUserList();
             String bodyStr = Files.readString(new File("./week2/mawakeb/webapp/user/list.html").toPath());
             bodyStr = bodyStr.replace("<!-- USER_TABLE_PLACEHOLDER -->", userList);
