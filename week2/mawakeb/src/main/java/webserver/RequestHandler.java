@@ -3,7 +3,7 @@ package webserver;
 import java.io.*;
 import java.net.Socket;
 
-import model.enums.HTTPMethod;
+import controller.Controller;
 import model.Http.HttpRequest;
 import model.Http.HttpResponse;
 import org.slf4j.Logger;
@@ -25,40 +25,20 @@ public class RequestHandler extends Thread {
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             HttpRequest httpRequest = new HttpRequest(in);
             HttpResponse httpResponse = new HttpResponse(out);
-
-            HTTPMethod method = httpRequest.getMethod();
             String path = httpRequest.getPath();
+            Controller controller = RequestMapper.getController(httpRequest.getPath());
 
-            if(method.isPost() && path.equals("/user/create")){
-                UserRequestHandler.handleCreateUser(httpRequest, httpResponse);
-                return;
-            }
-
-            if(method.isPost() && path.equals("/user/login")){
-                UserRequestHandler.handleLoginUser(httpRequest, httpResponse);
-                return;
-            }
-
-            if(method.isGet() && path.equals("/user/list")){
-                UserRequestHandler.handleGetUserList(httpRequest, httpResponse);
-                return;
-            }
-
-            // 우측 상단 버튼으로 조회될 수 있게
-            if(method.isGet() && path.equals("/user/list.html")){
-                UserRequestHandler.handleGetUserList(httpRequest, httpResponse);
-                return;
-            }
-
-            // 모두 아닌 경우 파일로 처리
-            if(httpRequest.getMethod().isGet()) {
+            if (controller == null){
+                // set default path
+                path = path.equals("/") ? "/index.html" : path;
                 httpResponse.forward(path);
+            } else {
+                controller.service(httpRequest, httpResponse);
             }
 
         } catch (IOException e) {
             log.error(e.getMessage());
         }
     }
-
 
 }
