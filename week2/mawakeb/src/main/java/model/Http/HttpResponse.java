@@ -21,7 +21,7 @@ public class HttpResponse {
     private Map<String, String> headers = new HashMap<>();
 
     private final String dev = "./week2/mawakeb/webapp";
-    private final String prd = "/webapp";
+    private final String prd = "./webapp";
 
     public HttpResponse(OutputStream out){
         dos = new DataOutputStream(out);
@@ -34,7 +34,7 @@ public class HttpResponse {
     /* 200 OK 및 기본 요청 및 uri 유지 */
     public void forward(String url) {
         try {
-            log.error("Working dir: " + System.getProperty("user.dir"));
+            log.debug("Working dir: " + System.getProperty("user.dir"));
             byte[] body = loadFile(url);
 
             ContentType contentType = ContentType.fromFileName(url);
