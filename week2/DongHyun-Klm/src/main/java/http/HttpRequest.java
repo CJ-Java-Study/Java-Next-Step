@@ -60,7 +60,7 @@ public class HttpRequest {
     }
 
     public String getHeader(String header) {
-        return headers.getOrDefault(header, "");
+        return headers.get(header);
     }
 }
 

@@ -64,7 +64,32 @@ public class HttpResponder {
                 .build();
 
         resp.getHeaders().put("Content-Type", "text/html;charset=utf-8");
-        resp.getHeaders().put("Content-Length", String.valueOf(body.length));
+
+        send(resp);
+    }
+
+    /**
+     * forward - 200 OK + static 파일 바디 + 추가 헤더
+     */
+    public void forward(String path, Map<String, String> extraHeaders) throws IOException {
+        File file = new File("./webapp" + path);
+        if(!file.exists()) {
+            HttpResponse notFound = HttpResponse.builder()
+                    .statusCode(404).statusMessage("Not Found")
+                    .build();
+            send(notFound);
+            return;
+        }
+        byte[] body = Files.readAllBytes(file.toPath());
+
+        HttpResponse resp = HttpResponse.builder()
+                .statusCode(200)
+                .statusMessage("OK")
+                .headers(extraHeaders)
+                .body(body)
+                .build();
+
+        resp.getHeaders().put("Content-Type", "text/html;charset=utf-8");
 
         send(resp);
     }
