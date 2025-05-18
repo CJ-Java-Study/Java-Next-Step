@@ -10,6 +10,7 @@ import java.util.Map;
 
 public class HttpResponder {
     private final DataOutputStream dos;
+    private final Map<String, String> customHeaders = new LinkedHashMap<>();
 
     public HttpResponder(OutputStream out) {
         this.dos = new DataOutputStream(out);
@@ -19,6 +20,7 @@ public class HttpResponder {
      * 응답 만들어 전송
      */
     public void send(HttpResponse resp) throws IOException {
+        resp.getHeaders().putAll(customHeaders);
         // 상태 라인
         dos.writeBytes("%s %d %s\r\n"
                 .formatted(resp.getVersion(), resp.getStatusCode(), resp.getStatusMessage()));
@@ -33,6 +35,7 @@ public class HttpResponder {
             dos.write(resp.getBody());
         }
         dos.flush();
+        customHeaders.clear();
     }
 
     /**
@@ -71,8 +74,13 @@ public class HttpResponder {
                 .build();
 
         resp.getHeaders().put("Location", redirectUrl);
+
         send(resp);
     }
 
+    public HttpResponder addHeader(String name, String value) {
+        customHeaders.put(name, value);
+        return this;
+    }
 }
 
