@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import db.DataBase;
+import http.HttpRequest;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,48 +31,30 @@ public class RequestHandler extends Thread {
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
-            // 첫 줄 파싱
-            String firstLine = br.readLine();
-            String[] tokens = firstLine.split(" ");
-            String method = tokens[0];
-            String url    = tokens[1];
-            String path = HttpRequestUtils.getPath(url);
-            String queryString = HttpRequestUtils.getQueryString(url);
-
-            // 나머지 헤더 저장
-            Map<String, String> headers = new HashMap<>();
-            String line;
-            while (!(line = br.readLine()).isEmpty()) {
-                String[] keyValue = line.split(":", 2);
-                headers.put(keyValue[0].trim(), keyValue[1].trim());
-            }
-
-            int contentLength = headers.containsKey("Content-Length")
-                    ? Integer.parseInt(headers.get("Content-Length"))
-                    : 0;
-            log.info("요청 method: {}, path: {}, queryString: {}", method, path, queryString);
+            HttpRequest httpRequest = new HttpRequest(in);
+            log.info("요청 method: {}, path: {}, queryString: {}", httpRequest.getMethod(), httpRequest.getPath(), httpRequest.getQueryString());
 
             DataOutputStream dos = new DataOutputStream(out);
 
             // 회원가입 요청 처리
-            if("POST".equals(method) && "/user/create".equals(path)) {
-                handleUserCreate(br, dos, contentLength);
+            if(httpRequest.getMethod().isPost() && "/user/create".equals(httpRequest.getPath())) {
+                handleUserCreate(br, dos, httpRequest.getContentLength());
                 return;
             }
 
             // 로그인 요청 처리 로직
-            if("POST".equals(method) && "/user/login".equals(path)) {
-                handleLogin(br, dos, contentLength);
+            if(httpRequest.getMethod().isPost() && "/user/login".equals(httpRequest.getPath())) {
+                handleLogin(br, dos, httpRequest.getContentLength());
                 return;
             }
 
             // 사용자 목록 출력 요청 처리 로직
-            if ("GET".equals(method) && "/user/list".equals(path)) {
-                handleLoginList(dos, headers);
+            if (httpRequest.getMethod().isGET() && "/user/list".equals(httpRequest.getPath())) {
+                handleLoginList(dos, httpRequest.getHeaders());
             }
 
             // 정적 리소스 조회
-            staticFile(dos, path, headers);
+            staticFile(dos, httpRequest.getPath(), httpRequest.getHeaders());
         } catch (IOException e) {
             log.error(e.getMessage());
         }

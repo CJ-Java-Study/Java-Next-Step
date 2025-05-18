@@ -18,8 +18,7 @@ public class ListUserController extends AbstractController {
     @Override
     public void doGet(HttpRequest req, HttpResponder res) throws IOException {
         // 쿠키에서 로그인 여부 확인
-        String cookie = req.getHeader("Cookie");
-        boolean loginYn = cookie != null && cookie.contains("logined=true");
+        boolean loginYn = req.isLogin();
 
         log.debug("ListUserController.doGet() 호출, loginYn={}", loginYn);
 

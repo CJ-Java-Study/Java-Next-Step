@@ -1,5 +1,6 @@
 package webserver.controller;
 
+import http.HttpMethod;
 import http.HttpRequest;
 import http.HttpResponder;
 
@@ -9,11 +10,11 @@ public class AbstractController implements Controller {
 
     @Override
     public void service(HttpRequest httpRequest, HttpResponder httpResponder) throws Exception {
-        switch (httpRequest.getMethod().toUpperCase()) {
-            case "GET":
+        switch (httpRequest.getMethod()) {
+            case GET:
                 doGet(httpRequest, httpResponder);
                 break;
-            case "POST":
+            case POST:
                 doPost(httpRequest, httpResponder);
                 break;
             default:
