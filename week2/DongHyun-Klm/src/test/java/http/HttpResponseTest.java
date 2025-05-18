@@ -6,7 +6,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.Map;
 
 
@@ -36,8 +36,11 @@ public class HttpResponseTest {
         // logined=true 정보가 있어야함.
         HttpResponder response =
                 new HttpResponder(createOutputStream("Http_Cookie.txt"));
-        response.addHeader("Set-Cookie", "logined=true");
-        response.sendRedirect("/index.html");
+
+        Map<String, String> extraHeaders = new HashMap<>();
+        extraHeaders.put("Set-Cookie", "logined=true");
+
+        response.sendRedirect("/index.html", extraHeaders);
     }
 
     private OutputStream createOutputStream(String filename)
