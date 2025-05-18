@@ -98,7 +98,8 @@ public class HttpResponder {
                 .headers(extraHeaders)
                 .build();
 
-        // 전송
+        resp.getHeaders().put("Location", redirectUrl);
+
         send(resp);
     }
 
