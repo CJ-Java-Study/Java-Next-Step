@@ -56,6 +56,7 @@ public class HttpResponder {
             return;
         }
         byte[] body = Files.readAllBytes(file.toPath());
+        String contentType = Files.probeContentType(file.toPath());
 
         HttpResponse resp = HttpResponse.builder()
                 .statusCode(200)
@@ -63,7 +64,7 @@ public class HttpResponder {
                 .body(body)
                 .build();
 
-        resp.getHeaders().put("Content-Type", "text/html;charset=utf-8");
+        resp.getHeaders().put("Content-Type", contentType);
 
         send(resp);
     }
