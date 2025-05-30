@@ -29,7 +29,7 @@ public class LoginController extends AbstractController {
         if(user != null && user.getPassword().equals(password)) { // 로그인 성공
             Map<String, String> headers = new HashMap<>();
             headers.put("Set-Cookie", "logined=true");
-            res.forward("/index.html", headers);
+            res.sendRedirect("/index.html", headers);
         } else { // 로그인 실패
             byte[] body = Files.readAllBytes(new File("/user/login_failed.html").toPath());
             Map<String, String> headers = new HashMap<>();
