@@ -1,5 +1,7 @@
 package next.model;
 
+import next.dto.UserUpdateRequest;
+
 public class User {
     private String userId;
     private String password;
@@ -27,6 +29,12 @@ public class User {
 
     public String getEmail() {
         return email;
+    }
+
+    public void update(UserUpdateRequest dto) {
+        this.password = dto.password();
+        this.name = dto.name();
+        this.email = dto.email();
     }
 
     @Override
