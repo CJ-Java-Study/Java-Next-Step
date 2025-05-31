@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@WebServlet("/users/updateForm")
+@WebServlet("/users/update")
 public class UpdateUserServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger log = LoggerFactory.getLogger(UpdateUserServlet.class);
@@ -26,7 +26,7 @@ public class UpdateUserServlet extends HttpServlet {
             throw new IllegalStateException("다른 사용자의 정보를 수정할 수 없습니다.");
         }
         req.setAttribute("user", user);
-        RequestDispatcher rd = req.getRequestDispatcher("/users/updateForm.jsp");
+        RequestDispatcher rd = req.getRequestDispatcher("/user/updateForm.jsp");
         rd.forward(req, resp);
     }
 

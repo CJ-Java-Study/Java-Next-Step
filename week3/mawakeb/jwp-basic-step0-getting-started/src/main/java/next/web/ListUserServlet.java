@@ -18,12 +18,12 @@ public class ListUserServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if (!UserSessionUtils.isLogined(req.getSession())) {
-            resp.sendRedirect("/users/loginForm");
+            resp.sendRedirect("/users/login");
             return;
         }
 
         req.setAttribute("users", DataBase.findAll());
-        RequestDispatcher rd = req.getRequestDispatcher("/users/list.jsp");
+        RequestDispatcher rd = req.getRequestDispatcher("/user/list.jsp");
         rd.forward(req, resp);
     }
 }
