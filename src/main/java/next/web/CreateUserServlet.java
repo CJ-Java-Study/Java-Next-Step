@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import core.db.DataBase;
 
-@WebServlet("/user/create")
+@WebServlet(value = { "/users/create", "/users/form" })
 public class CreateUserServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger log = LoggerFactory.getLogger(CreateUserServlet.class);

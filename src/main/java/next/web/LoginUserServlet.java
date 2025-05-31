@@ -12,7 +12,7 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 @Slf4j
-@WebServlet("/user/login")
+@WebServlet("/users/login")
 public class LoginUserServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
