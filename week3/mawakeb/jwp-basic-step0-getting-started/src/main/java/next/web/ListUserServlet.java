@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import core.db.DataBase;
 
-@WebServlet("/user/list")
+@WebServlet("/users/list")
 public class ListUserServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
@@ -23,7 +23,7 @@ public class ListUserServlet extends HttpServlet {
         }
 
         req.setAttribute("users", DataBase.findAll());
-        RequestDispatcher rd = req.getRequestDispatcher("/user/list.jsp");
+        RequestDispatcher rd = req.getRequestDispatcher("/users/list.jsp");
         rd.forward(req, resp);
     }
 }
