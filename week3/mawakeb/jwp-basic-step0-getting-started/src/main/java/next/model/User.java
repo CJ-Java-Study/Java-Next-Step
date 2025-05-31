@@ -36,6 +36,10 @@ public class User {
         this.email = email;
     }
 
+    public boolean isSameUser(User user) {
+        return userId.equals(user.userId);
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
