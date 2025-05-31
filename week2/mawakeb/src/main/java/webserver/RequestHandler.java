@@ -7,6 +7,7 @@ import java.util.UUID;
 import controller.Controller;
 import model.Http.HttpRequest;
 import model.Http.HttpResponse;
+import model.Http.HttpSessions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,8 +31,10 @@ public class RequestHandler extends Thread {
             // Ch.6 Add HttpSession
             // set cookie if it is a new session
             if(httpRequest.getCookie("JSESSIONID") == null){
-                httpResponse.addHeader("Set-Cookie", "JSESSIONID=" + UUID.randomUUID());
+                String uuid = UUID.randomUUID().toString();
                 // Apparently it is okay and common to have multiple set-cookie lines in http response
+                httpResponse.addHeader("Set-Cookie", "JSESSIONID=" + uuid);
+                HttpSessions.add(uuid);
             }
 
             String path = httpRequest.getPath();

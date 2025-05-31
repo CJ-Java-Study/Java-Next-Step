@@ -3,6 +3,7 @@ package controller;
 import db.DataBase;
 import model.Http.HttpRequest;
 import model.Http.HttpResponse;
+import model.Http.HttpSession;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +20,8 @@ public class UserLoginController extends AbstractController {
         User user = login(paramMap.get("userId"), paramMap.get("password"));
 
         if (user == null) {
-            response.addHeader("Set-Cookie", "logined=false");
+            HttpSession session = request.getSession();
+            session.setAttribute("user", user);
             response.sendRedirect("/user/login_failed.html");
             log.debug("LOGIN FAILED");
             return;

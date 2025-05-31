@@ -3,6 +3,7 @@ package controller;
 import db.DataBase;
 import model.Http.HttpRequest;
 import model.Http.HttpResponse;
+import model.Http.HttpSessionUtil;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,9 +21,8 @@ public class UserListController extends AbstractController {
     @Override
     public void doGet(HttpRequest request, HttpResponse response) {
         try {
-            String isLoggedIn = request.getCookie("logined");
 
-            if (Boolean.parseBoolean(isLoggedIn)) {
+            if (HttpSessionUtil.isLoggedIn(request.getSession())) {
                 String userList = getUserList();
                 Path filePath = FileUtil.loadPath("/user/list.html");
                 String body = Files.readString(filePath);
