@@ -1,47 +1,7 @@
-# Java 빌드 파일
-*.class
-*.jar
-*.war
-*.ear
-
-# 로그 파일
-*.log
-
-# 임시 파일
-*.tmp
-*.swp
-*~
-
-# IDE 설정 (IntelliJ, Eclipse, VSCode 등)
-.idea/
-*.iml
-*.ipr
-*.iws
-.vscode/
-*.launch
-.settings/
-bin/
-target/
-out/
-build/
-
-# OS별 파일
-.DS_Store
-Thumbs.db
-
-# Gradle
-.gradle/
-build/
-!gradle/wrapper/gradle-wrapper.jar
-
-# Maven
-target/
-pom.xml.tag
-pom.xml.releaseBackup
-pom.xml.versionsBackup
-pom.xml.next
-release.properties
-
-# 기타
-*.env
-*.local
+/.settings/
+/target/
+/.classpath
+/.project
+/jwp-basic.iml
+/.idea/
+/tomcat.8080/
