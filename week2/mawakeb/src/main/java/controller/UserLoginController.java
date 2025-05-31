@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
+import static model.Http.HttpSessionUtil.USER_SESSION_KEY;
+
 public class UserLoginController extends AbstractController {
 
     private static final Logger log = LoggerFactory.getLogger(UserLoginController.class);
@@ -26,7 +28,7 @@ public class UserLoginController extends AbstractController {
         }
 
         HttpSession session = request.getSession();
-        session.setAttribute("user", user);
+        session.setAttribute(USER_SESSION_KEY, user);
         response.sendRedirect("/index.html");
         log.debug("LOGIN SUCCESS: " + user.getUserId());
     }

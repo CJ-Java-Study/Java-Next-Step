@@ -29,6 +29,7 @@ public class HttpSession {
     }
 
     public void invalidate(){
-        attributes = new HashMap<>();
+        attributes = new HashMap<>(); // 처음 invalidate 로직, 세션 많아지면 비효율?
+        HttpSessions.remove(this.id);
     }
 }
