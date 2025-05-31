@@ -2,6 +2,7 @@ package webserver;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.UUID;
 
 import controller.Controller;
 import model.Http.HttpRequest;
@@ -25,6 +26,14 @@ public class RequestHandler extends Thread {
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             HttpRequest httpRequest = new HttpRequest(in);
             HttpResponse httpResponse = new HttpResponse(out);
+
+            // Ch.6 Add HttpSession
+            // set cookie if it is a new session
+            if(httpRequest.getCookie("JSESSIONID") == null){
+                httpResponse.addHeader("Set-Cookie", "JSESSIONID=" + UUID.randomUUID());
+                // Apparently it is okay and common to have multiple set-cookie lines in http response
+            }
+
             String path = httpRequest.getPath();
             Controller controller = RequestMapper.getController(httpRequest.getPath());
 
