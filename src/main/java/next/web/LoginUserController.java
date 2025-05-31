@@ -13,7 +13,7 @@ import java.io.IOException;
 
 @Slf4j
 @WebServlet("/users/login")
-public class LoginUserServlet extends HttpServlet {
+public class LoginUserController extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     @Override

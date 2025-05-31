@@ -16,7 +16,7 @@ import java.io.IOException;
 
 @Slf4j
 @WebServlet(value = { "/users/update", "/users/updateForm" })
-public class UpdateUserFormServlet extends HttpServlet {
+public class UpdateUserFormController extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     @Override
