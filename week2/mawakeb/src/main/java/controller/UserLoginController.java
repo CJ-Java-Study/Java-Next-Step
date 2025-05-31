@@ -20,14 +20,13 @@ public class UserLoginController extends AbstractController {
         User user = login(paramMap.get("userId"), paramMap.get("password"));
 
         if (user == null) {
-            HttpSession session = request.getSession();
-            session.setAttribute("user", user);
             response.sendRedirect("/user/login_failed.html");
             log.debug("LOGIN FAILED");
             return;
         }
 
-        response.addHeader("Set-Cookie", "logined=true");
+        HttpSession session = request.getSession();
+        session.setAttribute("user", user);
         response.sendRedirect("/index.html");
         log.debug("LOGIN SUCCESS: " + user.getUserId());
     }
