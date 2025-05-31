@@ -12,7 +12,7 @@ public class HttpSession {
         this.sessionId = sessionId;
     }
 
-    public void setAttribute(String key, String value) {
+    public void setAttribute(String key, Object value) {
         values.put(key, value);
     }
 
