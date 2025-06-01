@@ -1,0 +1,92 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
+<!DOCTYPE html>
+<html lang="kr">
+<head>
+    <meta charset="utf-8">
+    <title>SLiPP Java Web Programming</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/styles.css" rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-fixed-top header">
+    <div class="col-md-12">
+        <div class="navbar-header">
+            <a href="../index.jsp" class="navbar-brand">SLiPP</a>
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse1">
+                <i class="glyphicon glyphicon-search"></i>
+            </button>
+        </div>
+        <div class="collapse navbar-collapse" id="navbar-collapse1">
+            <form class="navbar-form pull-left">
+                <div class="input-group" style="max-width:470px;">
+                    <input type="text" class="form-control" placeholder="Search" name="srch-term" id="srch-term">
+                    <div class="input-group-btn">
+                        <button class="btn btn-default btn-primary" type="submit">
+                            <i class="glyphicon glyphicon-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="../user/list.jsp"><i class="glyphicon glyphicon-user"></i></a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="navbar navbar-default" id="subnav">
+    <div class="col-md-12">
+        <div class="collapse navbar-collapse" id="navbar-collapse2">
+            <ul class="nav navbar-nav navbar-right">
+                <li class="active"><a href="../index.jsp">Posts</a></li>
+                <c:choose>
+                    <c:when test="${not empty sessionScope.user}">
+                        <li><a href="/user/logout">로그아웃</a></li>
+                        <li><a href="/user/updateForm?userId=${sessionScope.user.userId}">개인정보수정</a></li>
+                    </c:when>
+                    <c:otherwise>
+                        <li><a href="/user/login.jsp" role="button">로그인</a></li>
+                        <li><a href="/user/form.jsp" role="button">회원가입</a></li>
+                    </c:otherwise>
+                </c:choose>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="container" id="main">
+    <div class="col-md-6 col-md-offset-3">
+        <div class="panel panel-default content-main">
+            <form name="signup" method="post" action="/user/create">
+                <div class="form-group">
+                    <label for="userId">사용자 아이디</label>
+                    <input class="form-control" id="userId" name="userId" placeholder="User ID" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">비밀번호</label>
+                    <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
+                </div>
+                <div class="form-group">
+                    <label for="name">이름</label>
+                    <input class="form-control" id="name" name="name" placeholder="Name" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">이메일</label>
+                    <input type="email" class="form-control" id="email" name="email" placeholder="Email" required>
+                </div>
+                <button type="submit" class="btn btn-success pull-right">회원가입</button>
+                <div class="clearfix"></div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- script references -->
+<script src="../js/jquery-2.2.0.min.js"></script>
+<script src="../js/bootstrap.min.js"></script>
+<script src="../js/scripts.js"></script>
+</body>
+</html>
