@@ -23,6 +23,7 @@ public class HttpRequest {
     private Map<String, String> bodyParams;
     private int contentLength;
     private Map<String, String> headers;
+    private Map<String, String> cookies;
 
     public HttpRequest(InputStream in) {
         try {
@@ -41,10 +42,23 @@ public class HttpRequest {
 
             // 나머지 헤더 파싱
             this.headers = new HashMap<>();
+            this.cookies = new HashMap<>();
             String line;
             while ((line = br.readLine()) != null && !line.isEmpty()) {
                 String[] keyValue = line.split(":", 2);
-                headers.put(keyValue[0].trim(), keyValue[1].trim());
+                String headerName = keyValue[0].trim();
+                String headerValue = keyValue[1].trim();
+                headers.put(headerName, headerValue);
+
+                if ("Cookie".equalsIgnoreCase(headerName)) {
+                    String[] cookieTokens = headerValue.split("; ");
+                    for (String c : cookieTokens) {
+                        String[] kv = c.split("=", 2);
+                        if (kv.length == 2) {
+                            cookies.put(kv[0], kv[1]);
+                        }
+                    }
+                }
             }
 
             this.contentLength = headers.containsKey("Content-Length")
