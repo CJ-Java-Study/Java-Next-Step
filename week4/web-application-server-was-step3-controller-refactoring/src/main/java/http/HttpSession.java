@@ -2,7 +2,6 @@ package http;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 public class HttpSession {
 
@@ -10,8 +9,9 @@ public class HttpSession {
     private final Map<String, Object> attributes = new HashMap<>();
     private boolean isValid = true;
 
-    public HttpSession() {
-        this.id = UUID.randomUUID().toString();
+    // ID는 외부(HttpSessions)에서 생성해 전달받음
+    public HttpSession(String id) {
+        this.id = id;
     }
 
     public String getId() {
@@ -37,6 +37,7 @@ public class HttpSession {
         checkValid();
         attributes.clear();
         isValid = false;
+        HttpSessions.remove(id); // 세션 저장소에서도 제거
     }
 
     private void checkValid() {
