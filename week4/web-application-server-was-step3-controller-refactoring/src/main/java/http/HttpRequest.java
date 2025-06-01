@@ -16,7 +16,7 @@ public class HttpRequest {
 	private RequestLine requestLine;
 
 	private HttpHeaders headers;
-	
+
 	private RequestParams requestParams = new RequestParams();
 
 	public HttpRequest(InputStream is) {
@@ -63,4 +63,7 @@ public class HttpRequest {
 	public String getParameter(String name) {
 		return requestParams.getParameter(name);
 	}
+
+	public HttpCookie getCookies() {return new HttpCookie(getHeader("Cookie")); }
+
 }
