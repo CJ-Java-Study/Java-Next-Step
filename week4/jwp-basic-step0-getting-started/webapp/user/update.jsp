@@ -12,33 +12,7 @@
     <link href="../css/styles.css" rel="stylesheet">
 </head>
 <body>
-<nav class="navbar navbar-fixed-top header">
-    <div class="col-md-12">
-        <div class="navbar-header">
-            <a href="../index.jsp" class="navbar-brand">SLiPP</a>
-        </div>
-    </div>
-</nav>
-
-<div class="navbar navbar-default" id="subnav">
-    <div class="col-md-12">
-        <div class="collapse navbar-collapse">
-            <ul class="nav navbar-nav navbar-right">
-                <li><a href="../index.jsp">Posts</a></li>
-                <c:choose>
-                    <c:when test="${not empty sessionScope.user}">
-                        <li><a href="/user/logout">로그아웃</a></li>
-                        <li class="active"><a href="/user/updateForm?userId=${sessionScope.user.userId}">개인정보수정</a></li>
-                    </c:when>
-                    <c:otherwise>
-                        <li><a href="/user/login.jsp">로그인</a></li>
-                        <li><a href="/user/form.jsp">회원가입</a></li>
-                    </c:otherwise>
-                </c:choose>
-            </ul>
-        </div>
-    </div>
-</div>
+<jsp:include page="/header.jsp" />
 
 <div class="container" id="main">
    <div class="col-md-6 col-md-offset-3">
