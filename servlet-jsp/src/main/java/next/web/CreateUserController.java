@@ -1,31 +1,23 @@
 package next.web;
 
-import java.io.IOException;
+import core.controller.Controller;
+import core.db.DataBase;
+import lombok.extern.slf4j.Slf4j;
+import next.model.User;
 
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import next.model.User;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import core.db.DataBase;
-
-@WebServlet(value = { "/users/create", "/users/form" })
-public class CreateUserController extends HttpServlet {
-    private static final long serialVersionUID = 1L;
-    private static final Logger log = LoggerFactory.getLogger(CreateUserController.class);
+@Slf4j
+public class CreateUserController implements Controller {
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    public String execute(HttpServletRequest req, HttpServletResponse resp) {
         User user = new User(req.getParameter("userId"), req.getParameter("password"), req.getParameter("name"),
                 req.getParameter("email"));
-        log.debug("user : {}", user);
+        log.debug("User : {}", user);
+
         DataBase.addUser(user);
-        resp.sendRedirect("/user/list");
+        return "redirect:/";
     }
 }
