@@ -32,7 +32,7 @@ public class UserListController extends AbstractController {
                 return;
             }
 
-            response.sendRedirect("/user/login.html");
+            response.sendRedirect("/user/login.jsp");
             log.debug("LOGIN REQUIRED");
         } catch (Exception e){
             log.error(e.getMessage());
