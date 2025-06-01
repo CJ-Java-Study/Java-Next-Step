@@ -6,6 +6,8 @@
       <sourceFolder url="file://$MODULE_DIR$/LeeJSYS/week1/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/LeeJSYS/week1/test" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/week2/mawakeb" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/week1/LeeJSYS/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/week1/LeeJSYS/test" isTestSource="true" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
