@@ -66,4 +66,12 @@ public class User {
         return true;
     }
 
+    public void update(String password, String name, String email) {
+        //TODO: 입력값 검증필요 & 에러핸들링
+        this.password = password;
+        this.name = name;
+        this.email = email;
+    }
+
+
 }
