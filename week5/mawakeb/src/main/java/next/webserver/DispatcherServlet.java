@@ -18,13 +18,23 @@ public class DispatcherServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger logger = LoggerFactory.getLogger(DispatcherServlet.class);
     private static final String REDIRECT = "redirect:";
+    private static final String JWP_BASIC = "/jwp-basic";
 
     @Override
     protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String requestUri = request.getRequestURI();
         logger.debug("Method : {}, Request URI : {}", request.getMethod(), requestUri);
 
+        if (requestUri.startsWith(JWP_BASIC)) {
+            requestUri = requestUri.substring(JWP_BASIC.length());
+        }
+
+        if (requestUri.isEmpty()) {
+            requestUri = "/"; // 또는 빈 문자열 대신 기본 경로 처리
+        }
+
         Controller controller = RequestMapping.getController(requestUri);
+
         try {
             String path = controller.execute(request, response);
             if (path.startsWith(REDIRECT)) {
