@@ -22,7 +22,7 @@ jobs:
       - name: Build WAR file with Maven
         working-directory: week5/mawakeb
         run: |
-          mvn clean package && cp target/jwp-basic.war ../../jwp-basic.war
+          mvn clean package && cp target/jwp-basic.war ../../ROOT.war
 
       - name: Create directory on EC2 if needed
         uses: appleboy/ssh-action@v0.1.7
@@ -40,7 +40,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: jwp-basic.war
+          source: ROOT.war
           target: /home/ubuntu/tomcat/webapps
 
       - name: Restart Tomcat on EC2
