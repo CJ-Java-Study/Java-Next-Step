@@ -40,7 +40,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           source: week5/mawakeb/target/jwp-basic.war
-          target: /home/ubuntu/tomcat/webapps/
+          target: /home/ubuntu/tomcat/webapps/jwp-basic.war
 
       - name: Restart Tomcat on EC2
         uses: appleboy/ssh-action@v1.0.0
