@@ -1,4 +1,4 @@
-package next.controller;
+package next.controller.users;
 
 import javax.servlet.http.HttpSession;
 

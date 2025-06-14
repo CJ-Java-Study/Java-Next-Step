@@ -15,10 +15,10 @@ public abstract class AbstractController implements Controller {
     }
 
     protected String doPost (HttpServletRequest request, HttpServletResponse response) {
-
+        return null;
     }
 
     protected String doGet (HttpServletRequest request, HttpServletResponse response) {
-
+        return null;
     }
 }

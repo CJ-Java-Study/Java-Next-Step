@@ -1,4 +1,4 @@
-package next.controller;
+package next.servlet;
 
 import javax.servlet.annotation.WebServlet;
 
