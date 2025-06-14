@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import core.db.DataBase;
+import next.controller.common.AbstractController;
 
 @WebServlet("")
 public class HomeController extends AbstractController {

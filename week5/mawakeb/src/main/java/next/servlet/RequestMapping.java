@@ -1,7 +1,8 @@
 package next.servlet;
 
-import next.controller.Controller;
+import next.controller.common.Controller;
 import next.controller.HomeController;
+import next.controller.common.ForwardController;
 import next.controller.users.*;
 
 import java.util.HashMap;
@@ -14,20 +15,22 @@ public class RequestMapping {
     static {
         controllers.put("", new HomeController());
 
-        controllers.put("/users/create", new CreateUserController());
-        controllers.put("/users/form", new CreateUserController());
+        // 단순 포워딩
+        controllers.put("/users/form", new ForwardController("/user/form.jsp"));
+        controllers.put("/users/loginForm", new ForwardController("/user/login.jsp"));
 
-        controllers.put("/users", new ListUserController());
-
+        // 로그인, 로그아웃
         controllers.put("/users/login", new LoginController());
-        controllers.put("/users/loginForm", new LoginController());
-
         controllers.put("/users/logout", new LogoutController());
 
-        controllers.put("/users/profile", new ProfileController());
-
+        // 유저 생성, 수정
+        controllers.put("/users/create", new CreateUserController());
         controllers.put("/users/update", new UpdateUserController());
         controllers.put("/users/updateForm", new UpdateUserController());
+
+        // 유저 조회
+        controllers.put("/users", new ListUserController());
+        controllers.put("/users/profile", new ProfileController());
     }
 
     public static Controller getController(String uri){
