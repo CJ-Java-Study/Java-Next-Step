@@ -14,7 +14,6 @@ import core.db.DataBase;
 import next.controller.AbstractController;
 import next.model.User;
 
-@WebServlet(value = { "/users/login", "/users/loginForm" })
 public class LoginController extends AbstractController {
     private static final long serialVersionUID = 1L;
 
