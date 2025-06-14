@@ -23,6 +23,16 @@ jobs:
         working-directory: week5/mawakeb
         run: mvn clean package
 
+      - name: Create directory on EC2 if needed
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            sudo mkdir -p /home/ubuntu/tomcat/webapps/
+            sudo chown -R ubuntu:ubuntu /home/ubuntu/tomcat/
+
       - name: Upload WAR to EC2
         uses: appleboy/scp-action@v0.1.4
         with:
@@ -30,7 +40,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           source: week5/mawakeb/target/jwp-basic.war
-          target: /home/ec2-user/tomcat/webapps/
+          target: /home/ubuntu/tomcat/webapps/
 
       - name: Restart Tomcat on EC2
         uses: appleboy/ssh-action@v1.0.0
