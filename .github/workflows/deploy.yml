@@ -21,8 +21,8 @@ jobs:
 
       - name: Build WAR file with Maven
         working-directory: week5/mawakeb
-        run: mvn clean package
-             cp week5/mawakeb/target/jwp-basic.war ./jwp-basic.war
+        run: |
+          mvn clean package && cp target/jwp-basic.war ../../jwp-basic.war
 
       - name: Create directory on EC2 if needed
         uses: appleboy/ssh-action@v0.1.7
