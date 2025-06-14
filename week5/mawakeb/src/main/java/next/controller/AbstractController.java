@@ -6,7 +6,7 @@ import javax.servlet.http.HttpServletResponse;
 public abstract class AbstractController implements Controller {
 
     @Override
-    public String execute(HttpServletRequest request, HttpServletResponse response){
+    public String execute(HttpServletRequest request, HttpServletResponse response) throws Exception{
         if(request.getMethod().equals("GET")){
             return doGet(request, response);
         } else  {
@@ -14,11 +14,11 @@ public abstract class AbstractController implements Controller {
         }
     }
 
-    protected String doPost (HttpServletRequest request, HttpServletResponse response) {
+    protected String doPost (HttpServletRequest request, HttpServletResponse response) throws Exception {
         return null;
     }
 
-    protected String doGet (HttpServletRequest request, HttpServletResponse response) {
+    protected String doGet (HttpServletRequest request, HttpServletResponse response) throws Exception {
         return null;
     }
 }

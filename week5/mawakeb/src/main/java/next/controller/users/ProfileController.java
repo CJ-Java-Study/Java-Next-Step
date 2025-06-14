@@ -1,6 +1,7 @@
 package next.controller.users;
 
 import core.db.DataBase;
+import next.controller.AbstractController;
 import next.model.User;
 
 import javax.servlet.RequestDispatcher;
@@ -12,18 +13,17 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @WebServlet("/users/profile")
-public class ProfileController extends HttpServlet {
+public class ProfileController extends AbstractController {
     private static final long serialVersionUID = 1L;
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected String doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String userId = req.getParameter("userId");
         User user = DataBase.findUserById(userId);
         if (user == null) {
             throw new NullPointerException("사용자를 찾을 수 없습니다.");
         }
         req.setAttribute("user", user);
-        RequestDispatcher rd = req.getRequestDispatcher("/user/profile.jsp");
-        rd.forward(req, resp);
+        return "/user/profile.jsp";
     }
 }
