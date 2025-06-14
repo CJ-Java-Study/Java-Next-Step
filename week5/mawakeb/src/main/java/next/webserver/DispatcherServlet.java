@@ -1,4 +1,4 @@
-package next.servlet;
+package next.webserver;
 
 import next.controller.common.Controller;
 import org.slf4j.Logger;

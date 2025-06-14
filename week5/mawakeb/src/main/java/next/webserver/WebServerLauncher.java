@@ -1,4 +1,4 @@
-package next;
+package next.webserver;
 
 import java.io.File;
 
