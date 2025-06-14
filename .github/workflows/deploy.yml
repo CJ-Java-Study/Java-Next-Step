@@ -3,7 +3,7 @@ name: Build and Deploy WAR to EC2 Tomcat
 on:
   push:
     branches:
-      - main  # You can change this to your desired deployment branch
+      - week5  # You can change this to your desired deployment branch
 
 jobs:
   build-deploy:
@@ -20,6 +20,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Build WAR file with Maven
+        working-directory: week5/mawakeb
         run: mvn clean package
 
       - name: Upload WAR to EC2
