@@ -41,7 +41,7 @@
         <c:choose>
           <c:when test="${not empty sessionScope.user}">
             <li>
-              <a href="<c:url value='/user/profile.html'/>">
+              <a href="<c:url value='/user/profile'/>">
                 <i class="glyphicon glyphicon-user"></i>
                   ${sessionScope.user.userId}님
               </a>
@@ -50,7 +50,7 @@
           </c:when>
           <c:otherwise>
             <li><a href="<c:url value='/user/login'/>" role="button">로그인</a></li>
-            <li><a href="<c:url value='/user/form.html'/>" role="button">회원가입</a></li>
+            <li><a href="<c:url value='/user/form'/>" role="button">회원가입</a></li>
           </c:otherwise>
         </c:choose>
       </ul>
@@ -68,7 +68,7 @@
       </a>
       <ul class="nav dropdown-menu">
         <li>
-          <a href="<c:url value='../user/profile.html'/>">
+          <a href="<c:url value='../user/profile'/>">
             <i class="glyphicon glyphicon-user" style="color:#1111dd;"></i> Profile
           </a>
         </li>
@@ -97,7 +97,7 @@
           </c:when>
           <c:otherwise>
             <li><a href="<c:url value='/user/login'/>" role="button">로그인</a></li>
-            <li><a href="<c:url value='/user/form.html'/>" role="button">회원가입</a></li>
+            <li><a href="<c:url value='/user/form'/>" role="button">회원가입</a></li>
           </c:otherwise>
         </c:choose>
       </ul>
