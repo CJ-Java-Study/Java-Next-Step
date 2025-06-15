@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.calculator.StringCalculatorTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2025-04-27T01:22:27" hostname="ZBOOK-CRK" time="0.031">
+  <properties/>
+  <testcase name="addWithCustomDelimiters" classname="org.calculator.StringCalculatorTest" time="0.022"/>
+  <testcase name="addWithDefaultDelimiters" classname="org.calculator.StringCalculatorTest" time="0.001"/>
+  <testcase name="addBlank" classname="org.calculator.StringCalculatorTest" time="0.0"/>
+  <testcase name="addInvalidString" classname="org.calculator.StringCalculatorTest" time="0.003"/>
+  <testcase name="addNegative" classname="org.calculator.StringCalculatorTest" time="0.001"/>
+  <testcase name="addSingle" classname="org.calculator.StringCalculatorTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
