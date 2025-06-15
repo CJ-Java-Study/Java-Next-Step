@@ -4,6 +4,7 @@ import db.DataBase;
 import http.HttpRequest;
 import http.HttpResponder;
 import http.HttpResponse;
+import http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import model.User;
 import webserver.controller.AbstractController;
@@ -18,7 +19,7 @@ public class ListUserController extends AbstractController {
     @Override
     public void doGet(HttpRequest req, HttpResponder res) throws IOException {
         // 쿠키에서 로그인 여부 확인
-        boolean loginYn = req.isLogin();
+        boolean loginYn = isLogined(req.getSession());
 
         log.debug("ListUserController.doGet() 호출, loginYn={}", loginYn);
 
@@ -37,6 +38,11 @@ public class ListUserController extends AbstractController {
         resp.getHeaders().put("Content-Type", "text/html;charset=utf-8");
 
         res.send(resp);
+    }
+
+    private boolean isLogined(HttpSession session) {
+        Object user = session.getAttribute("user");
+        return user != null;
     }
 
     // 유저 목록 string 출력

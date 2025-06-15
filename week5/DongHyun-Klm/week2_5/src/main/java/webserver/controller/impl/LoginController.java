@@ -4,6 +4,7 @@ import db.DataBase;
 import http.HttpRequest;
 import http.HttpResponder;
 import http.HttpResponse;
+import http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import model.User;
 import webserver.controller.AbstractController;
@@ -27,9 +28,9 @@ public class LoginController extends AbstractController {
         log.info("요청 사용자 - {}", user);
 
         if(user != null && user.getPassword().equals(password)) { // 로그인 성공
-            Map<String, String> headers = new HashMap<>();
-            headers.put("Set-Cookie", "logined=true");
-            res.sendRedirect("/index.html", headers);
+            HttpSession session = req.getSession();
+            session.setAttribute("user", user);
+            res.sendRedirect("/index.html");
         } else { // 로그인 실패
             byte[] body = Files.readAllBytes(new File("/user/login_failed.html").toPath());
             Map<String, String> headers = new HashMap<>();

@@ -2,23 +2,15 @@ package webserver;
 
 import java.io.*;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.UUID;
 
-import db.DataBase;
 import http.HttpRequest;
 import http.HttpResponder;
-import model.User;
+import http.HttpSessions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.HttpRequestUtils;
-import util.IOUtils;
 import webserver.controller.Controller;
 import webserver.controller.RequestMapping;
-import webserver.controller.impl.CreateUserController;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
@@ -36,7 +28,13 @@ public class RequestHandler extends Thread {
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             HttpRequest httpRequest = new HttpRequest(in);
             HttpResponder httpResponder = new HttpResponder(out);
-            log.info("요청 method: {}, path: {}, queryString: {}", httpRequest.getMethod(), httpRequest.getPath(), httpRequest.getQueryString());
+            log.info("요청 method: {}, path: {}, RequestParams: {}", httpRequest.getMethod(), httpRequest.getPath(), httpRequest.getRequestParams());
+
+            String sessionId = httpRequest.getCookies().getCookie(HttpSessions.SESSION_ID_NAME);
+
+            if(sessionId == null) {
+                sessionId = HttpSessions.SESSION_ID_NAME + "=" + UUID.randomUUID();
+            }
 
             Controller controller = RequestMapping.getController(httpRequest.getPath());
 
