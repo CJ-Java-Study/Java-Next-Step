@@ -1,8 +1,6 @@
 package next.dao;
 
 import core.jdbc.ConnectionManager;
-import next.dao.UserDao;
-import next.model.User;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -19,6 +17,19 @@ public class JdbcTemplate {
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DataAccessException("update 실패 " + sql, e);
+        }
+    }
+
+    public void update(String sql, Object... params) {
+        try (Connection con = ConnectionManager.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
+
+            for (int i = 0; i < params.length; i++) {
+                pstmt.setObject(i + 1, params[i]);
+            }
+            pstmt.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new DataAccessException("update 실패: " + sql, e);
         }
     }
 

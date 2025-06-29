@@ -10,17 +10,8 @@ import next.model.User;
 public class UserDao {
     public void insert(User user) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate();
-        PreparedStatementSetter setter = new PreparedStatementSetter() {
-            @Override
-            public void setValues(PreparedStatement pstmt) throws SQLException {
-                pstmt.setString(1, user.getUserId());
-                pstmt.setString(2, user.getPassword());
-                pstmt.setString(3, user.getName());
-                pstmt.setString(4, user.getEmail());
-            }
-        };
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-        jdbcTemplate.update(sql, setter);
+        jdbcTemplate.update(sql, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
     }
 
     public void update(User user) {
