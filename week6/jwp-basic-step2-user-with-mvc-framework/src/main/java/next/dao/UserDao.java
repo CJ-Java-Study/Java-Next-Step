@@ -8,101 +8,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 import core.jdbc.ConnectionManager;
+import next.dao.template.InsertJdbcTemplate;
+import next.dao.template.UpdateJdbcTemplate;
 import next.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class UserDao {
     private static final Logger log = LoggerFactory.getLogger(UserDao.class);
+    private final InsertJdbcTemplate insertJdbcTemplate = new InsertJdbcTemplate();
+    private final UpdateJdbcTemplate updateJdbcTemplate = new UpdateJdbcTemplate();
+
 
     public void insert(User user) {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = createQueryForInsert();
-            pstmt = con.prepareStatement(sql);
-            setValuesForInsert(user,pstmt);
-
-            pstmt.executeUpdate();
-        } catch (SQLException e){
-            throw new RuntimeException("Insert 실패 : "+ user.getUserId(), e);
-        }finally {
-            try{
-                if (pstmt != null) {
-                    pstmt.close();
-                }
-            }catch(SQLException e){
-                log.warn("PreparedStatement 닫기 실패", e);
-            }
-            try{
-                if (con != null) {
-                    con.close();
-                }
-            }catch(SQLException e){
-                log.warn("Connnection 닫기 실패", e);
-            }
-        }
-    }
-
-    public void setValuesForInsert(User user, PreparedStatement pstmt){
-        try {
-            pstmt.setString(1, user.getUserId());
-            pstmt.setString(2, user.getPassword());
-            pstmt.setString(3, user.getName());
-            pstmt.setString(4, user.getEmail());
-        } catch (SQLException e) {
-            throw new RuntimeException("PreparedStatement 값 설정 실패: " + user.getUserId(), e);
-        }
-    }
-
-    public String createQueryForInsert() {
-        return "INSERT INTO USERS VALUES (?, ?, ?, ?)";
+        insertJdbcTemplate.insert(user);
     }
 
     public void update(User user) {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = createQueryForUpdate();
-            pstmt = con.prepareStatement(sql);
-            setValuesForUpdate(user,pstmt);
-
-            pstmt.executeUpdate();
-        } catch (SQLException e){
-            throw new RuntimeException("Update 실패 : "+ user.getUserId(), e);
-        }finally {
-            try{
-                if (pstmt != null) {
-                    pstmt.close();
-                }
-            }catch(SQLException e){
-                log.warn("PreparedStatement 닫기 실패", e);
-            }
-            try{
-                if (con != null) {
-                    con.close();
-                }
-            }catch(SQLException e){
-                log.warn("Connnection 닫기 실패", e);
-            }
-        }
-    }
-
-    public void setValuesForUpdate(User user, PreparedStatement pstmt){
-        try {
-            pstmt.setString(1, user.getPassword());
-            pstmt.setString(2, user.getName());
-            pstmt.setString(3, user.getEmail());
-            pstmt.setString(4, user.getUserId());
-        } catch (SQLException e) {
-            throw new RuntimeException("PreparedStatement 값 설정 실패: " + user.getUserId(), e);
-        }
-    }
-
-    public String createQueryForUpdate() {
-        return "UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?";
+        updateJdbcTemplate.update(user);
     }
 
     public List<User> findAll() {
