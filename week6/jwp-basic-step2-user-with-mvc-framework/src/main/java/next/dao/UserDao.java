@@ -8,10 +8,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import core.jdbc.ConnectionManager;
+import next.controller.UpdateUserController;
 import next.model.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UserDao {
-    public void insert(User user) throws SQLException {
+    private static final Logger log = LoggerFactory.getLogger(UserDao.class);
+
+    public void insert(User user) {
         Connection con = null;
         PreparedStatement pstmt = null;
         try {
@@ -24,13 +29,22 @@ public class UserDao {
             pstmt.setString(4, user.getEmail());
 
             pstmt.executeUpdate();
-        } finally {
-            if (pstmt != null) {
-                pstmt.close();
+        } catch (SQLException e){
+            throw new RuntimeException("Insert 실패 : "+ user.getUserId(), e);
+        }finally {
+            try{
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+            }catch(SQLException e){
+                log.warn("PreparedStatement 닫기 실패", e);
             }
-
-            if (con != null) {
-                con.close();
+            try{
+                if (con != null) {
+                    con.close();
+                }
+            }catch(SQLException e){
+                log.warn("Connnection 닫기 실패", e);
             }
         }
     }
