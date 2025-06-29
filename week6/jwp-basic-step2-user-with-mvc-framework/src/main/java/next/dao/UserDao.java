@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import core.jdbc.ConnectionManager;
-import next.controller.UpdateUserController;
 import next.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +45,7 @@ public class UserDao {
         }
     }
 
-    private void setValuesForInsert(User user, PreparedStatement pstmt){
+    public void setValuesForInsert(User user, PreparedStatement pstmt){
         try {
             pstmt.setString(1, user.getUserId());
             pstmt.setString(2, user.getPassword());
@@ -57,7 +56,7 @@ public class UserDao {
         }
     }
 
-    private String createQueryForInsert() {
+    public String createQueryForInsert() {
         return "INSERT INTO USERS VALUES (?, ?, ?, ?)";
     }
 
@@ -91,7 +90,7 @@ public class UserDao {
         }
     }
 
-    private void setValuesForUpdate(User user, PreparedStatement pstmt){
+    public void setValuesForUpdate(User user, PreparedStatement pstmt){
         try {
             pstmt.setString(1, user.getPassword());
             pstmt.setString(2, user.getName());
@@ -102,7 +101,7 @@ public class UserDao {
         }
     }
 
-    private String createQueryForUpdate() {
+    public String createQueryForUpdate() {
         return "UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?";
     }
 
