@@ -6,10 +6,14 @@ import javax.servlet.http.HttpServletResponse;
 import core.db.DataBase;
 import core.mvc.Controller;
 
-public class HomeController implements Controller {
+public class ListUserController implements Controller {
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) throws Exception {
+        if (!UserSessionUtils.isLogined(req.getSession())) {
+            return "redirect:/users/loginForm";
+        }
+
         req.setAttribute("users", DataBase.findAll());
-        return "home.jsp";
+        return "/user/list.jsp";
     }
 }
