@@ -1,6 +1,7 @@
 package next.dao.template;
 
 import core.jdbc.ConnectionManager;
+import core.jdbc.JdbcUtil;
 import next.dao.UserDao;
 import next.model.User;
 import org.slf4j.Logger;
@@ -25,20 +26,8 @@ public class UpdateJdbcTemplate {
         } catch (SQLException e) {
             throw new RuntimeException("Update 실패: " + user.getUserId(), e);
         } finally {
-            try{
-                if (pstmt != null) {
-                    pstmt.close();
-                }
-            }catch(SQLException e){
-                log.warn("PreparedStatement 닫기 실패", e);
-            }
-            try{
-                if (con != null) {
-                    con.close();
-                }
-            }catch(SQLException e){
-                log.warn("Connnection 닫기 실패", e);
-            }
+            JdbcUtil.close(pstmt);
+            JdbcUtil.close(con);
         }
     }
 }
