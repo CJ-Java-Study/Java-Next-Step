@@ -1,0 +1,55 @@
+name: Build and Deploy WAR to EC2 Tomcat
+
+on:
+  push:
+    branches:
+      - week5  # You can change this to your desired deployment branch
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Build WAR file with Maven
+        working-directory: week5/mawakeb
+        run: |
+          mvn clean package && cp target/jwp-basic.war ../../ROOT.war
+
+      - name: Create directory on EC2 if needed
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            sudo mkdir -p /home/ubuntu/tomcat/webapps/
+            sudo chown -R ubuntu:ubuntu /home/ubuntu/tomcat/
+
+      - name: Upload WAR to EC2
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: ROOT.war
+          target: /home/ubuntu/tomcat/webapps
+
+      - name: Restart Tomcat on EC2
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            ~/tomcat/bin/shutdown.sh || true
+            sleep 3
+            ~/tomcat/bin/startup.sh
