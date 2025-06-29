@@ -33,7 +33,7 @@ public class JdbcTemplate {
         }
     }
 
-    public <T> List<T> query(String sql, PreparedStatementSetter setter, RowMapper<T> rowMapper) throws SQLException {
+    public <T> List<T> query(String sql, PreparedStatementSetter setter, RowMapper<T> rowMapper) {
         try (Connection con = ConnectionManager.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
             setter.setValues(pstmt);
 
@@ -49,12 +49,52 @@ public class JdbcTemplate {
         }
     }
 
-    public <T> T queryForObject(String sql, PreparedStatementSetter setter, RowMapper<T> rowMapper) throws SQLException {
+    public <T> List<T> query(String sql, RowMapper<T> rowMapper) {
+        try (Connection con = ConnectionManager.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                List<T> results = new ArrayList<>();
+                while (rs.next()) {
+                    results.add(rowMapper.mapRow(rs));
+                }
+                return results;
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("query 실패 "+ sql, e);
+        }
+    }
+
+    public <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... params) {
+        try (Connection con = ConnectionManager.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
+
+            for (int i = 0; i < params.length; i++) {
+                pstmt.setObject(i + 1, params[i]);
+            }
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                List<T> results = new ArrayList<>();
+                while (rs.next()) {
+                    results.add(rowMapper.mapRow(rs));
+                }
+                return results;
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("query 실패: " + sql, e);
+        }
+    }
+
+    public <T> T queryForObject(String sql, PreparedStatementSetter setter, RowMapper<T> rowMapper) {
         List<T> list = query(sql, setter, rowMapper);
         if (list.isEmpty()) {
             return null;
         }
         return list.get(0);
+    }
+
+    public <T> T queryForObject(String sql, RowMapper<T> rowMapper, Object... params) {
+        List<T> list = query(sql, rowMapper, params);
+        return list.isEmpty() ? null : list.get(0);
     }
 
 }
