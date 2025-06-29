@@ -49,7 +49,7 @@ public class UserDao {
         }
     }
 
-    public void update(User user) throws SQLException {
+    public void update(User user) {
         Connection con = null;
         PreparedStatement pstmt = null;
         try {
@@ -62,17 +62,27 @@ public class UserDao {
             pstmt.setString(4, user.getUserId());
 
             pstmt.executeUpdate();
-        } finally {
-            if (pstmt != null) {
-                pstmt.close();
+        } catch (SQLException e){
+            throw new RuntimeException("Update 실패 : "+ user.getUserId(), e);
+        }finally {
+            try{
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+            }catch(SQLException e){
+                log.warn("PreparedStatement 닫기 실패", e);
             }
-            if (con != null) {
-                con.close();
+            try{
+                if (con != null) {
+                    con.close();
+                }
+            }catch(SQLException e){
+                log.warn("Connnection 닫기 실패", e);
             }
         }
     }
 
-    public List<User> findAll() throws SQLException {
+    public List<User> findAll() {
         List<User> users = new ArrayList<>();
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -93,20 +103,34 @@ public class UserDao {
                 users.add(user);
             }
             return users;
-        } finally {
-            if (rs != null) {
-                rs.close();
+        } catch (SQLException e){
+            throw new RuntimeException("Select 실패 : findAll", e);
+        }finally {
+            try{
+                if (rs != null) {
+                    rs.close();
+                }
+            }catch(SQLException e){
+                log.warn("ResultSet 닫기 실패", e);
             }
-            if (pstmt != null) {
-                pstmt.close();
+            try{
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+            }catch(SQLException e){
+                log.warn("PreparedStatement 닫기 실패", e);
             }
-            if (con != null) {
-                con.close();
+            try{
+                if (con != null) {
+                    con.close();
+                }
+            }catch(SQLException e){
+                log.warn("Connnection 닫기 실패", e);
             }
         }
     }
 
-    public User findByUserId(String userId) throws SQLException {
+    public User findByUserId(String userId) {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -125,15 +149,29 @@ public class UserDao {
             }
 
             return user;
-        } finally {
-            if (rs != null) {
-                rs.close();
+        } catch (SQLException e){
+            throw new RuntimeException("Select 실패 : findByUserId", e);
+        }finally {
+            try{
+                if (rs != null) {
+                    rs.close();
+                }
+            }catch(SQLException e){
+                log.warn("ResultSet 닫기 실패", e);
             }
-            if (pstmt != null) {
-                pstmt.close();
+            try{
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+            }catch(SQLException e){
+                log.warn("PreparedStatement 닫기 실패", e);
             }
-            if (con != null) {
-                con.close();
+            try{
+                if (con != null) {
+                    con.close();
+                }
+            }catch(SQLException e){
+                log.warn("Connnection 닫기 실패", e);
             }
         }
     }
