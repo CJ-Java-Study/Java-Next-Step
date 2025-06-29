@@ -24,14 +24,10 @@ public class CreateUserController implements Controller {
                 user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
 
         UserDao userDao = new UserDao();
-        try{
-            userDao.insert(user);
-            User user_db = userDao.findByUserId(user.getUserId());
-            log.debug("userId-db={}, password-db={}, name-db={}, email-db={}",
-                    user_db.getUserId(), user_db.getPassword(), user_db.getName(), user_db.getEmail());
-        } catch(SQLException e){
-            log.error(e.getMessage());
-        }
+        userDao.insert(user);
+        User user_db = userDao.findByUserId(user.getUserId());
+        log.debug("userId-db={}, password-db={}, name-db={}, email-db={}",
+                user_db.getUserId(), user_db.getPassword(), user_db.getName(), user_db.getEmail());
         return "redirect:/";
     }
 }

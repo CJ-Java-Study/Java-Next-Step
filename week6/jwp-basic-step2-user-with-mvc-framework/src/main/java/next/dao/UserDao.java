@@ -8,43 +8,103 @@ import java.util.ArrayList;
 import java.util.List;
 
 import core.jdbc.ConnectionManager;
+import next.dao.template.InsertJdbcTemplate;
+import next.dao.template.JdbcTemplate;
+import next.dao.template.UpdateJdbcTemplate;
 import next.model.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UserDao {
-    public void insert(User user) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, user.getUserId());
-            pstmt.setString(2, user.getPassword());
-            pstmt.setString(3, user.getName());
-            pstmt.setString(4, user.getEmail());
+    private static final Logger log = LoggerFactory.getLogger(UserDao.class);
+    private final InsertJdbcTemplate insertJdbcTemplate = new InsertJdbcTemplate();
+    private final UpdateJdbcTemplate updateJdbcTemplate = new UpdateJdbcTemplate();
 
-            pstmt.executeUpdate();
-        } finally {
-            if (pstmt != null) {
-                pstmt.close();
+    public void insert(User user) {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate() {
+            @Override
+            protected void setValues(User user, PreparedStatement pstmt) throws SQLException {
+                pstmt.setString(1, user.getUserId());
+                pstmt.setString(2, user.getPassword());
+                pstmt.setString(3, user.getName());
+                pstmt.setString(4, user.getEmail());
             }
 
-            if (con != null) {
-                con.close();
+            @Override
+            protected String createQuery() {
+                return "INSERT INTO USERS VALUES (?, ?, ?, ?)";
+            }
+        };
+        jdbcTemplate.update(user);
+    }
+
+    public void update(User user) {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate() {
+            @Override
+            protected void setValues(User user, PreparedStatement pstmt) throws SQLException {
+                pstmt.setString(1, user.getPassword());
+                pstmt.setString(2, user.getName());
+                pstmt.setString(3, user.getEmail());
+                pstmt.setString(4, user.getUserId());
+            }
+
+            @Override
+            protected String createQuery() {
+                return "UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?";
+            }
+        };
+        jdbcTemplate.update(user);
+    }
+
+    public List<User> findAll() {
+        List<User> users = new ArrayList<>();
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try{
+            con = ConnectionManager.getConnection();
+            String sql = "SELECT userId, password, name, email FROM USERS";
+            pstmt = con.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                User user = new User(
+                    rs.getString("userId"),
+                    rs.getString("password"),
+                    rs.getString("name"),
+                    rs.getString("email")
+                );
+                users.add(user);
+            }
+            return users;
+        } catch (SQLException e){
+            throw new RuntimeException("Select 실패 : findAll", e);
+        }finally {
+            try{
+                if (rs != null) {
+                    rs.close();
+                }
+            }catch(SQLException e){
+                log.warn("ResultSet 닫기 실패", e);
+            }
+            try{
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+            }catch(SQLException e){
+                log.warn("PreparedStatement 닫기 실패", e);
+            }
+            try{
+                if (con != null) {
+                    con.close();
+                }
+            }catch(SQLException e){
+                log.warn("Connnection 닫기 실패", e);
             }
         }
     }
 
-    public void update(User user) throws SQLException {
-        // TODO 구현 필요함.
-    }
-
-    public List<User> findAll() throws SQLException {
-        // TODO 구현 필요함.
-        return new ArrayList<User>();
-    }
-
-    public User findByUserId(String userId) throws SQLException {
+    public User findByUserId(String userId) {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -63,15 +123,29 @@ public class UserDao {
             }
 
             return user;
-        } finally {
-            if (rs != null) {
-                rs.close();
+        } catch (SQLException e){
+            throw new RuntimeException("Select 실패 : findByUserId", e);
+        }finally {
+            try{
+                if (rs != null) {
+                    rs.close();
+                }
+            }catch(SQLException e){
+                log.warn("ResultSet 닫기 실패", e);
             }
-            if (pstmt != null) {
-                pstmt.close();
+            try{
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+            }catch(SQLException e){
+                log.warn("PreparedStatement 닫기 실패", e);
             }
-            if (con != null) {
-                con.close();
+            try{
+                if (con != null) {
+                    con.close();
+                }
+            }catch(SQLException e){
+                log.warn("Connnection 닫기 실패", e);
             }
         }
     }

@@ -23,24 +23,18 @@ public class LoginController implements Controller {
         log.debug("userId: {}, password: {}", userId, password);
         UserDao userDao = new UserDao();
         User user;
-        try{
-            user= userDao.findByUserId(userId);
-            log.debug("userId-db: {}, password-db: {}", user.getUserId(), user.getPassword());
-            if (user == null) {
-                req.setAttribute("loginFailed", true);
-                return "/user/login.jsp";
-            }
-            if (user.matchPassword(password)) {
-                HttpSession session = req.getSession();
-                session.setAttribute(UserSessionUtils.USER_SESSION_KEY, user);
-                return "redirect:/";
-            } else {
-                req.setAttribute("loginFailed", true);
-                return "/user/login.jsp";
-            }
-        } catch(SQLException e){
-            log.error(e.getMessage());
+        user= userDao.findByUserId(userId);
+        if (user == null) {
+            req.setAttribute("loginFailed", true);
+            return "/user/login.jsp";
         }
-        return "redirect:/";
+        if (user.matchPassword(password)) {
+            HttpSession session = req.getSession();
+            session.setAttribute(UserSessionUtils.USER_SESSION_KEY, user);
+            return "redirect:/";
+        } else {
+            req.setAttribute("loginFailed", true);
+            return "/user/login.jsp";
+        }
     }
 }
