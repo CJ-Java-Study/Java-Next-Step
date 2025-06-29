@@ -14,13 +14,13 @@ import java.sql.SQLException;
 public class InsertJdbcTemplate {
     private static final Logger log = LoggerFactory.getLogger(InsertJdbcTemplate.class);
 
-    public void insert(User user, UserDao dao) {
+    public void insert(User user) {
         Connection con = null;
         PreparedStatement pstmt = null;
         try {
             con = ConnectionManager.getConnection();
-            pstmt = con.prepareStatement(dao.createQueryForInsert());
-            dao.setValuesForInsert(user, pstmt);
+            pstmt = con.prepareStatement(createQueryForInsert());
+            setValuesForInsert(user, pstmt);
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Insert 실패", e);
@@ -28,5 +28,20 @@ public class InsertJdbcTemplate {
             JdbcUtil.close(pstmt);
             JdbcUtil.close(con);
         }
+    }
+
+    private void setValuesForInsert(User user, PreparedStatement pstmt){
+        try {
+            pstmt.setString(1, user.getUserId());
+            pstmt.setString(2, user.getPassword());
+            pstmt.setString(3, user.getName());
+            pstmt.setString(4, user.getEmail());
+        } catch (SQLException e) {
+            throw new RuntimeException("PreparedStatement 값 설정 실패: " + user.getUserId(), e);
+        }
+    }
+
+    private String createQueryForInsert() {
+        return "INSERT INTO USERS VALUES (?, ?, ?, ?)";
     }
 }
