@@ -8,13 +8,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import core.jdbc.ConnectionManager;
+import core.jdbc.JdbcTemplate;
 import next.model.User;
 
 public class UserDao {
     public void insert(User user) throws SQLException {
-        InsertJdbcTemplate insertJdbcTemplate = new InsertJdbcTemplate() {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate() {
             @Override
-            void setValuesForInsert(User user, PreparedStatement pstmt) throws SQLException {
+            public void setValues(User user, PreparedStatement pstmt) throws SQLException {
                 pstmt.setString(1, user.getUserId());
                 pstmt.setString(2, user.getPassword());
                 pstmt.setString(3, user.getName());
@@ -22,17 +23,17 @@ public class UserDao {
             }
 
             @Override
-            String createQueryForInsert() {
+            public String createQuery() {
                 return "INSERT INTO USERS (userId, password, name, email) VALUES (?, ?, ?, ?)";
             }
         };
-        insertJdbcTemplate.insert(user);
+        jdbcTemplate.update(user);
     }
 
     public void update(User user) throws SQLException {
-        UpdateJdbcTemplate updateJdbcTemplate = new UpdateJdbcTemplate() {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate() {
             @Override
-            void setValuesForUpdate(User user, PreparedStatement pstmt) throws SQLException {
+            public void setValues(User user, PreparedStatement pstmt) throws SQLException {
                 pstmt.setString(1, user.getPassword());
                 pstmt.setString(2, user.getName());
                 pstmt.setString(3, user.getEmail());
@@ -40,11 +41,11 @@ public class UserDao {
             }
 
             @Override
-            String createQueryForUpdate() {
+            public String createQuery() {
                 return "UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?";
             }
         };
-        updateJdbcTemplate.update(user);
+        jdbcTemplate.update(user);
     }
 
     public List<User> findAll() throws SQLException {
