@@ -8,16 +8,16 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public class UpdateJdbcTemplate {
+public abstract class UpdateJdbcTemplate {
 
-    public void update(User user, UserDao userDao) throws SQLException {
+    public void update(User user) throws SQLException {
         Connection con = null;
         PreparedStatement pstmt = null;
         try {
             con = ConnectionManager.getConnection();
-            String sql = userDao.createQuestForUpdate();
+            String sql = createQuestForUpdate();
             pstmt = con.prepareStatement(sql);
-            userDao.setValuesForUpdate(user, pstmt);
+            setValuesForUpdate(user, pstmt);
 
             pstmt.executeUpdate();
         } finally {
@@ -29,4 +29,8 @@ public class UpdateJdbcTemplate {
             }
         }
     }
+
+    protected abstract void setValuesForUpdate(User user, PreparedStatement pstmt) throws SQLException;
+
+    protected abstract String createQuestForUpdate();
 }
