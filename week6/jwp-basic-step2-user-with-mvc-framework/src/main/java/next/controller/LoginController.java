@@ -24,7 +24,6 @@ public class LoginController implements Controller {
         UserDao userDao = new UserDao();
         User user;
         user= userDao.findByUserId(userId);
-        log.debug("userId-db: {}, password-db: {}", user.getUserId(), user.getPassword());
         if (user == null) {
             req.setAttribute("loginFailed", true);
             return "/user/login.jsp";
