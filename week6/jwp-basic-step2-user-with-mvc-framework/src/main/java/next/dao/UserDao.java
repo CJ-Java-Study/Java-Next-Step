@@ -19,13 +19,40 @@ public class UserDao {
     private static final Logger log = LoggerFactory.getLogger(UserDao.class);
     private final InsertJdbcTemplate insertJdbcTemplate = new InsertJdbcTemplate();
     private final UpdateJdbcTemplate updateJdbcTemplate = new UpdateJdbcTemplate();
-    private final JdbcTemplate jdbcTemplate = new JdbcTemplate();
 
     public void insert(User user) {
-        jdbcTemplate.insert(user);
+        JdbcTemplate jdbcTemplate = new JdbcTemplate() {
+            @Override
+            protected void setValues(User user, PreparedStatement pstmt) throws SQLException {
+                pstmt.setString(1, user.getUserId());
+                pstmt.setString(2, user.getPassword());
+                pstmt.setString(3, user.getName());
+                pstmt.setString(4, user.getEmail());
+            }
+
+            @Override
+            protected String createQuery() {
+                return "INSERT INTO USERS VALUES (?, ?, ?, ?)";
+            }
+        };
+        jdbcTemplate.update(user);
     }
 
     public void update(User user) {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate() {
+            @Override
+            protected void setValues(User user, PreparedStatement pstmt) throws SQLException {
+                pstmt.setString(1, user.getPassword());
+                pstmt.setString(2, user.getName());
+                pstmt.setString(3, user.getEmail());
+                pstmt.setString(4, user.getUserId());
+            }
+
+            @Override
+            protected String createQuery() {
+                return "UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?";
+            }
+        };
         jdbcTemplate.update(user);
     }
 

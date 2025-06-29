@@ -10,62 +10,29 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public class JdbcTemplate {
+public abstract class JdbcTemplate {
     private static final Logger log = LoggerFactory.getLogger(JdbcTemplate.class);
 
-    public void insert(User user) {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        try {
-            con = ConnectionManager.getConnection();
-            pstmt = con.prepareStatement(createQuery(true));
-            setValues(user, pstmt, true);
-            pstmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException("Insert 실패", e);
-        } finally {
-            JdbcUtil.close(pstmt);
-            JdbcUtil.close(con);
-        }
-    }
     public void update(User user) {
         Connection con = null;
         PreparedStatement pstmt = null;
 
         try {
             con = ConnectionManager.getConnection();
-            pstmt = con.prepareStatement(createQuery(false));
-            setValues(user, pstmt, false);
+            String sql = createQuery();
+            pstmt = con.prepareStatement(sql);
+            setValues(user, pstmt);
             pstmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException("Update 실패: " + user.getUserId(), e);
-        } finally {
+        }  catch (SQLException e) {
+            throw new RuntimeException("JDBC 오류", e);
+        }finally {
             JdbcUtil.close(pstmt);
             JdbcUtil.close(con);
         }
     }
-    private void setValues(User user, PreparedStatement pstmt, boolean isInsert){
-        try {
-            if (isInsert) {
-                pstmt.setString(1, user.getUserId());
-                pstmt.setString(2, user.getPassword());
-                pstmt.setString(3, user.getName());
-                pstmt.setString(4, user.getEmail());
-            } else {
-                pstmt.setString(1, user.getPassword());
-                pstmt.setString(2, user.getName());
-                pstmt.setString(3, user.getEmail());
-                pstmt.setString(4, user.getUserId());
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("PreparedStatement 값 설정 실패: " + user.getUserId(), e);
-        }
-    }
-    private String createQuery(boolean isInsert) {
-        if (isInsert) {
-            return "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-        } else {
-            return "UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?";
-        }
-    }
+
+    protected abstract String createQuery();
+
+    protected abstract void setValues(User user, PreparedStatement pstmt) throws SQLException;
 }
+
