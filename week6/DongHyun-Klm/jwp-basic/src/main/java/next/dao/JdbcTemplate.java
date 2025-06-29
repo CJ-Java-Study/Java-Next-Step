@@ -11,57 +11,34 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class JdbcTemplate<T> {
+public class JdbcTemplate {
 
-    public void update(String sql, PreparedStatementSetter setter) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        try {
-            con = ConnectionManager.getConnection();
-            pstmt = con.prepareStatement(sql);
+    public void update(String sql, PreparedStatementSetter setter) {
+        try (Connection con = ConnectionManager.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
             setter.setValues(pstmt);
-
             pstmt.executeUpdate();
-        } finally {
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
+        } catch (SQLException e) {
+            throw new DataAccessException("update 실패 " + sql, e);
         }
     }
 
-    public List<T> query(String sql, PreparedStatementSetter setter, RowMapper<T> rowMapper) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            pstmt = con.prepareStatement(sql);
+    public <T> List<T> query(String sql, PreparedStatementSetter setter, RowMapper<T> rowMapper) throws SQLException {
+        try (Connection con = ConnectionManager.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
             setter.setValues(pstmt);
 
-            rs = pstmt.executeQuery();
-
-            List<T> results = new ArrayList<>();
-            while (rs.next()) {
-                results.add(rowMapper.mapRow(rs));
+            try (ResultSet rs = pstmt.executeQuery()) {
+                List<T> results = new ArrayList<>();
+                while (rs.next()) {
+                    results.add(rowMapper.mapRow(rs));
+                }
+                return results;
             }
-            return results;
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
+        } catch (SQLException e) {
+            throw new DataAccessException("query 실패 "+ sql, e);
         }
     }
 
-    public T queryForObject(String sql, PreparedStatementSetter setter, RowMapper<T> rowMapper) throws SQLException {
+    public <T> T queryForObject(String sql, PreparedStatementSetter setter, RowMapper<T> rowMapper) throws SQLException {
         List<T> list = query(sql, setter, rowMapper);
         if (list.isEmpty()) {
             return null;

@@ -8,7 +8,7 @@ import java.util.List;
 import next.model.User;
 
 public class UserDao {
-    public void insert(User user) throws SQLException {
+    public void insert(User user) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate();
         PreparedStatementSetter setter = new PreparedStatementSetter() {
             @Override
@@ -23,7 +23,7 @@ public class UserDao {
         jdbcTemplate.update(sql, setter);
     }
 
-    public void update(User user) throws SQLException {
+    public void update(User user) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate();
         PreparedStatementSetter setter = new PreparedStatementSetter() {
             @Override
@@ -39,7 +39,7 @@ public class UserDao {
     }
 
     public List<User> findAll() throws SQLException {
-        JdbcTemplate<User> jdbcTemplate = new JdbcTemplate();
+        JdbcTemplate jdbcTemplate = new JdbcTemplate();
         PreparedStatementSetter setter = new PreparedStatementSetter() {
             @Override
             public void setValues(PreparedStatement pstmt) throws SQLException {
@@ -58,7 +58,7 @@ public class UserDao {
     }
 
     public User findByUserId(String userId) throws SQLException {
-        JdbcTemplate<User> jdbcTemplate = new JdbcTemplate();
+        JdbcTemplate jdbcTemplate = new JdbcTemplate();
         PreparedStatementSetter setter = new PreparedStatementSetter() {
             @Override
             public void setValues(PreparedStatement pstmt) throws SQLException {
