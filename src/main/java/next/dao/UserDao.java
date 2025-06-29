@@ -4,11 +4,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 import core.jdbc.ConnectionManager;
 import core.jdbc.JdbcTemplate;
+import core.jdbc.SelectJdbcTemplate;
 import next.model.User;
 
 public class UserDao {
@@ -41,37 +41,23 @@ public class UserDao {
     }
 
     public List<User> findAll() throws SQLException {
-        List<User> users = new ArrayList<>();
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "SELECT userId, password, name, email FROM USERS";
-            pstmt = con.prepareStatement(sql);
-            rs = pstmt.executeQuery();
+        SelectJdbcTemplate jdbcTemplate = new SelectJdbcTemplate() {
+            @Override
+            public void setValues(PreparedStatement pstmt) throws SQLException {
+                // No parameters to set for this query
+            }
 
-            while (rs.next()) {
-                User user = new User(
+            @Override
+            public Object mapRow(ResultSet rs) throws SQLException {
+                return new User(
                         rs.getString("userId"),
                         rs.getString("password"),
                         rs.getString("name"),
-                        rs.getString("email")
-                );
-                users.add(user);
+                        rs.getString("email"));
             }
-            return users;
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
-        }
+        };
+        String sql = "SELECT userId, password, name, email FROM USERS";
+        return (List<User>)jdbcTemplate.query(sql);
     }
 
     public User findByUserId(String userId) throws SQLException {
