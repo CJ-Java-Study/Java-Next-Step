@@ -9,6 +9,7 @@ import java.util.List;
 
 import core.jdbc.ConnectionManager;
 import next.dao.template.InsertJdbcTemplate;
+import next.dao.template.JdbcTemplate;
 import next.dao.template.UpdateJdbcTemplate;
 import next.model.User;
 import org.slf4j.Logger;
@@ -18,14 +19,14 @@ public class UserDao {
     private static final Logger log = LoggerFactory.getLogger(UserDao.class);
     private final InsertJdbcTemplate insertJdbcTemplate = new InsertJdbcTemplate();
     private final UpdateJdbcTemplate updateJdbcTemplate = new UpdateJdbcTemplate();
-
+    private final JdbcTemplate jdbcTemplate = new JdbcTemplate();
 
     public void insert(User user) {
-        insertJdbcTemplate.insert(user);
+        jdbcTemplate.insert(user);
     }
 
     public void update(User user) {
-        updateJdbcTemplate.update(user);
+        jdbcTemplate.update(user);
     }
 
     public List<User> findAll() {
