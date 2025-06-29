@@ -28,10 +28,21 @@ public class DispatcherServlet extends HttpServlet {
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String requestUri = req.getRequestURI();
+        String requestUri = req.getRequestURI().substring(req.getContextPath().length());;
         logger.debug("Method : {}, Request URI : {}", req.getMethod(), requestUri);
 
         Controller controller = rm.findController(requestUri);
+        // ✅ 예외 처리 추가: 등록되지 않은 URI 요청 처리
+        if (controller == null) {
+            logger.warn("No controller found for URI: {}", requestUri);
+            if (requestUri.startsWith("/.well-known")) {
+                // 크롬 또는 브라우저의 자동 요청인 경우
+                resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                return;
+            }
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
         try {
             String viewName = controller.execute(req, resp);
             move(viewName, req, resp);
